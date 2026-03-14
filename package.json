@@ -1,0 +1,14 @@
+{
+  "name": "birthday-celebration",
+  "version": "1.0.0",
+  "description": "69th Birthday Celebration Website",
+  "main": "index.html",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "^5.0.0"
+  }
+}
