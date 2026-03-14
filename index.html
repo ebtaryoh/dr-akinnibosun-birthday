@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>69 & Glorious — A Birthday Celebration</title>
+  <meta name="description" content="A grand celebration of 69 magnificent years — a life of wisdom, love, laughter, and legacy." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,600&family=Inter:wght@300;400;500;600&family=Raleway:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ========== CANVAS PARTICLES ========== -->
+  <canvas id="particleCanvas"></canvas>
+
+  <!-- ========== PRELOADER ========== -->
+  <div id="preloader">
+    <div class="preloader-inner">
+      <div class="preloader-number">69</div>
+      <div class="preloader-text">Loading a lifetime of memories…</div>
+      <div class="preloader-bar"><div class="preloader-fill"></div></div>
+    </div>
+  </div>
+
+  <!-- ========== NAVIGATION ========== -->
+  <nav id="navbar">
+    <div class="nav-inner">
+      <div class="nav-logo">69 &amp; Glorious</div>
+      <ul class="nav-links">
+        <li><a href="#hero">Home</a></li>
+        <li><a href="#about">About</a></li>
+        <li><a href="#timeline">Journey</a></li>
+        <li><a href="#gallery">Gallery</a></li>
+        <li><a href="#tributes">Tributes</a></li>
+        <li><a href="#wishes">Wishes</a></li>
+      </ul>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ========== HERO SECTION ========== -->
+  <section id="hero">
+    <div class="hero-bg-number">69</div>
+    <div class="hero-content">
+      <div class="hero-badge reveal">
+        <span class="badge-dot"></span>
+        February · 2026 · A Celebration of Life
+      </div>
+      <h1 class="hero-title reveal">
+        <span class="hero-title-top">Happy 69th</span>
+        <em class="hero-name">Birthday</em>
+      </h1>
+      <p class="hero-sub reveal">
+        69 years of wisdom, wonder, warmth & boundless grace.<br/>
+        Today, the world pauses to celebrate <em>you</em>.
+      </p>
+      <div class="hero-countdown reveal" id="heroCountdown">
+        <div class="countdown-block">
+          <span class="cd-num" id="cd-days">00</span>
+          <span class="cd-label">Days</span>
+        </div>
+        <div class="countdown-sep">:</div>
+        <div class="countdown-block">
+          <span class="cd-num" id="cd-hours">00</span>
+          <span class="cd-label">Hours</span>
+        </div>
+        <div class="countdown-sep">:</div>
+        <div class="countdown-block">
+          <span class="cd-num" id="cd-mins">00</span>
+          <span class="cd-label">Minutes</span>
+        </div>
+        <div class="countdown-sep">:</div>
+        <div class="countdown-block">
+          <span class="cd-num" id="cd-secs">00</span>
+          <span class="cd-label">Seconds</span>
+        </div>
+      </div>
+      <div class="hero-cta-group reveal">
+        <a href="#about" class="btn-primary">Explore the Journey</a>
+        <a href="#wishes" class="btn-outline">Leave a Wish 🎂</a>
+      </div>
+    </div>
+    <div class="hero-scroll-hint">
+      <div class="scroll-dot"></div>
+      <span>Scroll down</span>
+    </div>
+  </section>
+
+  <!-- ========== FLOATING MARQUEE ========== -->
+  <div class="marquee-wrapper">
+    <div class="marquee-track">
+      <span>69 Years of Grace ✦</span>
+      <span>A Legacy of Love ✦</span>
+      <span>Wisdom Personified ✦</span>
+      <span>The Golden Chapter ✦</span>
+      <span>Cherished Always ✦</span>
+      <span>69 Years of Grace ✦</span>
+      <span>A Legacy of Love ✦</span>
+      <span>Wisdom Personified ✦</span>
+      <span>The Golden Chapter ✦</span>
+      <span>Cherished Always ✦</span>
+    </div>
+  </div>
+
+  <!-- ========== ABOUT SECTION ========== -->
+  <section id="about">
+    <div class="section-label reveal">The Celebrant</div>
+    <div class="about-grid">
+      <div class="about-image-wrap reveal">
+        <div class="about-image-frame">
+          <div class="about-badge-age">69</div>
+          <img src="images/celebrant.jpg" alt="The Celebrant" class="about-img" 
+               onerror="this.style.display='none'; this.parentElement.classList.add('no-img')" />
+          <div class="about-img-placeholder">
+            <svg viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="50" cy="35" r="25" fill="#c8a96e" opacity="0.4"/>
+              <ellipse cx="50" cy="95" rx="38" ry="28" fill="#c8a96e" opacity="0.25"/>
+            </svg>
+            <p>Photo coming soon</p>
+          </div>
+        </div>
+      </div>
+      <div class="about-text reveal">
+        <h2 class="section-heading">A Life Worth<br/><em>Celebrating</em></h2>
+        <p class="about-desc">
+          Sixty-nine years ago, the world welcomed someone extraordinary. Someone whose laughter would light up rooms for decades to come. Someone whose strength would quietly carry an entire family. Someone whose love would never waver, not once, through every storm and every sunrise.
+        </p>
+        <p class="about-desc">
+          Today, we celebrate not just a birthday — but a lifetime of purpose, sacrifice, and irreplaceable love. Every year added is another chapter in a story that has shaped each one of us.
+        </p>
+        <div class="about-stats">
+          <div class="stat-item">
+            <span class="stat-number" data-target="69">0</span>
+            <span class="stat-label">Years of Grace</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-number" data-target="1000">0</span>
+            <span class="stat-label">Smiles Gifted</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-number" data-target="365">0</span>
+            <span class="stat-label">Days of Love/Year</span>
+          </div>
+        </div>
+        <div class="about-tags">
+          <span>Mother</span>
+          <span>Grandmother</span>
+          <span>Mentor</span>
+          <span>Friend</span>
+          <span>Legend</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== CANDLE INTERACTIVE ========== -->
+  <section id="cake-section">
+    <div class="section-label reveal">Make a Wish</div>
+    <h2 class="section-heading text-center reveal">Blow Out The Candles</h2>
+    <p class="section-sub text-center reveal">Tap the candles to blow them out — one by one, or all at once!</p>
+    <div class="cake-wrapper reveal">
+      <div class="cake-body">
+        <div class="cake-top-layer"></div>
+        <div class="cake-mid-layer"></div>
+        <div class="cake-bot-layer"></div>
+        <div class="candle-row" id="candleRow">
+          <!-- Candles injected by JS -->
+        </div>
+        <div class="cake-plate"></div>
+      </div>
+      <div class="wish-prompt" id="wishPrompt" style="display:none">
+        🎉 Wish granted! May all your dreams come true! 🎉
+      </div>
+      <button class="btn-outline mt-2" id="relight" style="display:none">Relight Candles 🕯️</button>
+    </div>
+  </section>
+
+  <!-- ========== TIMELINE SECTION ========== -->
+  <section id="timeline">
+    <div class="section-label reveal">The Journey</div>
+    <h2 class="section-heading text-center reveal">69 Years of<br/><em>Beautiful Chapters</em></h2>
+    <p class="section-sub text-center reveal">Every year a story. Every moment a treasure.</p>
+    <div class="timeline-wrapper">
+      <div class="timeline-line"></div>
+
+      <div class="timeline-item left reveal">
+        <div class="timeline-dot"></div>
+        <div class="timeline-card">
+          <div class="timeline-year">1957</div>
+          <h3>A Star is Born</h3>
+          <p>The world became infinitely brighter. A soul full of light and potential entered this earth, bringing joy to an entire family.</p>
+        </div>
+      </div>
+
+      <div class="timeline-item right reveal">
+        <div class="timeline-dot"></div>
+        <div class="timeline-card">
+          <div class="timeline-year">1970s</div>
+          <h3>Years of Wonder</h3>
+          <p>Growing up full of curiosity, dreams, and a spirit that no obstacle could contain. Laying the foundation of a remarkable life.</p>
+        </div>
+      </div>
+
+      <div class="timeline-item left reveal">
+        <div class="timeline-dot"></div>
+        <div class="timeline-card">
+          <div class="timeline-year">1980s</div>
+          <h3>Love & New Beginnings</h3>
+          <p>A chapter of love, commitment, and building a family. The seeds of a legacy planted with every act of devotion.</p>
+        </div>
+      </div>
+
+      <div class="timeline-item right reveal">
+        <div class="timeline-dot"></div>
+        <div class="timeline-card">
+          <div class="timeline-year">1990s</div>
+          <h3>The Pillar of Strength</h3>
+          <p>Raising a family, overcoming challenges, and standing firm through life's greatest tests. A decade defined by resilience and grace.</p>
+        </div>
+      </div>
+
+      <div class="timeline-item left reveal">
+        <div class="timeline-dot"></div>
+        <div class="timeline-card">
+          <div class="timeline-year">2000s</div>
+          <h3>The Golden Years Begin</h3>
+          <p>Watching children grow, welcoming new family members, and discovering new passions. Life expanding in the most beautiful ways.</p>
+        </div>
+      </div>
+
+      <div class="timeline-item right reveal">
+        <div class="timeline-dot"></div>
+        <div class="timeline-card">
+          <div class="timeline-year">2010s</div>
+          <h3>Grandparent Extraordinaire</h3>
+          <p>A new role arrived — and it was embraced with a love that only grandparents know how to give. Pure, unconditional, infinite.</p>
+        </div>
+      </div>
+
+      <div class="timeline-item left reveal">
+        <div class="timeline-dot"></div>
+        <div class="timeline-card">
+          <div class="timeline-year">2020s</div>
+          <h3>Wisdom & Wonder</h3>
+          <p>Still curious. Still vibrant. Still giving. A soul that refuses to stop growing, loving, and inspiring everyone around them.</p>
+        </div>
+      </div>
+
+      <div class="timeline-item right reveal">
+        <div class="timeline-dot"></div>
+        <div class="timeline-card timeline-card-gold">
+          <div class="timeline-year">2026</div>
+          <h3>69 & Glorious 🎉</h3>
+          <p>The most magnificent chapter yet. Today the entire world pauses to say: <em>thank you for existing</em>. Happy 69th Birthday!</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== GALLERY SECTION ========== -->
+  <section id="gallery">
+    <div class="section-label reveal">Portraits in Time</div>
+    <h2 class="section-heading text-center reveal">A Life in<br/><em>Beautiful Frames</em></h2>
+    <div class="gallery-filters reveal">
+      <button class="filter-btn active" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="family">Family</button>
+      <button class="filter-btn" data-filter="milestones">Milestones</button>
+      <button class="filter-btn" data-filter="memories">Memories</button>
+    </div>
+    <div class="gallery-grid" id="galleryGrid">
+      <!-- Gallery cards injected by JS -->
+    </div>
+  </section>
+
+  <!-- ========== TRIBUTES SECTION ========== -->
+  <section id="tributes">
+    <div class="section-label reveal">Words of Love</div>
+    <h2 class="section-heading text-center reveal">What They Say<br/><em>About You</em></h2>
+    <div class="tributes-carousel" id="tributesCarousel">
+      <div class="tribute-card active">
+        <div class="tribute-quote">"You taught me that strength is quiet, love is patient, and grace is free. I aspire to be half the person you are."</div>
+        <div class="tribute-author">— Your Beloved Child</div>
+        <div class="tribute-stars">★★★★★</div>
+      </div>
+      <div class="tribute-card">
+        <div class="tribute-quote">"Grandma, your hugs feel like home. Every single time. Thank you for being the warmest place in our lives."</div>
+        <div class="tribute-author">— Your Grandchildren</div>
+        <div class="tribute-stars">★★★★★</div>
+      </div>
+      <div class="tribute-card">
+        <div class="tribute-quote">"I've watched you pour yourself into everything you do — family, friendships, life — with such boundless generosity. You inspire us all."</div>
+        <div class="tribute-author">— Dearest Friend</div>
+        <div class="tribute-stars">★★★★★</div>
+      </div>
+      <div class="tribute-card">
+        <div class="tribute-quote">"69 years of being the most remarkable human in the room without even trying. Happy Birthday to our forever queen."</div>
+        <div class="tribute-author">— The Whole Family</div>
+        <div class="tribute-stars">★★★★★</div>
+      </div>
+    </div>
+    <div class="carousel-dots" id="carouselDots"></div>
+    <div class="carousel-nav">
+      <button class="carousel-prev" id="carouselPrev">&#8249;</button>
+      <button class="carousel-next" id="carouselNext">&#8250;</button>
+    </div>
+  </section>
+
+  <!-- ========== WISHES GUESTBOOK ========== -->
+  <section id="wishes">
+    <div class="section-label reveal">The Guestbook</div>
+    <h2 class="section-heading text-center reveal">Leave a Birthday<br/><em>Wish</em></h2>
+    <p class="section-sub text-center reveal">Share your heartfelt message and make this celebration even more special.</p>
+    <div class="wishes-layout">
+      <form class="wish-form reveal" id="wishForm">
+        <div class="form-group">
+          <label for="wishName">Your Name</label>
+          <input type="text" id="wishName" placeholder="e.g. Sarah Johnson" required />
+        </div>
+        <div class="form-group">
+          <label for="wishRelation">Your Relationship</label>
+          <select id="wishRelation">
+            <option value="Family">Family Member</option>
+            <option value="Friend">Friend</option>
+            <option value="Colleague">Colleague</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="wishMessage">Your Message</label>
+          <textarea id="wishMessage" rows="4" placeholder="Write your heartfelt birthday wish…" required></textarea>
+        </div>
+        <div class="form-group">
+          <label for="wishEmoji">Choose a reaction</label>
+          <div class="emoji-picker" id="emojiPicker">
+            <span class="emoji-opt selected" data-emoji="🎂">🎂</span>
+            <span class="emoji-opt" data-emoji="❤️">❤️</span>
+            <span class="emoji-opt" data-emoji="🎉">🎉</span>
+            <span class="emoji-opt" data-emoji="🌟">🌟</span>
+            <span class="emoji-opt" data-emoji="🙏">🙏</span>
+            <span class="emoji-opt" data-emoji="🥂">🥂</span>
+          </div>
+        </div>
+        <button type="submit" class="btn-primary w-full" id="submitWish">Send My Wish 🎁</button>
+      </form>
+      <div class="wishes-wall" id="wishesWall">
+        <!-- Wishes injected by JS -->
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== CLOSING SECTION ========== -->
+  <section id="closing">
+    <div class="closing-content">
+      <div class="closing-icon">✦</div>
+      <h2 class="closing-heading reveal">Here's to 69 Years<br/>&amp; <em>Many More</em></h2>
+      <p class="closing-text reveal">
+        May every sunrise bring you new joy. May every season add more love to your already extraordinary story. May the years ahead be as beautiful as the legacy you have already built.
+      </p>
+      <p class="closing-signature reveal">With all our love, <em>always.</em></p>
+      <div class="closing-confetti-btn-wrap reveal">
+        <button class="btn-primary" id="throwConfetti">Celebrate! 🎊</button>
+      </div>
+    </div>
+    <div class="closing-balloons">
+      <div class="balloon b1">🎈</div>
+      <div class="balloon b2">🎈</div>
+      <div class="balloon b3">🎈</div>
+      <div class="balloon b4">🎈</div>
+    </div>
+  </section>
+
+  <!-- ========== FOOTER ========== -->
+  <footer id="footer">
+    <div class="footer-inner">
+      <div class="footer-logo">69 &amp; Glorious</div>
+      <p class="footer-text">Crafted with ❤️ to celebrate a one-of-a-kind soul.</p>
+      <div class="footer-nav">
+        <a href="#hero">Home</a>
+        <a href="#timeline">Journey</a>
+        <a href="#gallery">Gallery</a>
+        <a href="#wishes">Guestbook</a>
+      </div>
+      <p class="footer-copy">© 2026 · All rights reserved · Made with love</p>
+    </div>
+  </footer>
+
+  <!-- ========== MUSIC PLAYER ========== -->
+  <div class="music-player" id="musicPlayer">
+    <button class="music-toggle" id="musicToggle" title="Toggle birthday music">
+      <span class="music-icon">♪</span>
+    </button>
+    <div class="music-info">
+      <span class="music-title">Happy Birthday Song</span>
+      <div class="music-waveform">
+        <span></span><span></span><span></span><span></span><span></span>
+        <span></span><span></span><span></span><span></span><span></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== LIGHTBOX ========== -->
+  <div class="lightbox" id="lightbox">
+    <button class="lightbox-close" id="lightboxClose">&times;</button>
+    <button class="lightbox-prev" id="lightboxPrev">&#8249;</button>
+    <div class="lightbox-content">
+      <div class="lightbox-img-wrap" id="lightboxImgWrap">
+        <img id="lightboxImg" src="" alt="" />
+        <div class="lightbox-placeholder" id="lightboxPlaceholder">
+          <span>📷</span>
+          <p>Photo Placeholder</p>
+        </div>
+      </div>
+      <div class="lightbox-caption" id="lightboxCaption"></div>
+    </div>
+    <button class="lightbox-next" id="lightboxNext">&#8250;</button>
+  </div>
+
+  <!-- ========== BACK TO TOP ========== -->
+  <button class="back-to-top" id="backToTop" title="Back to top">↑</button>
+
+  <script src="app.js"></script>
+</body>
+</html>
