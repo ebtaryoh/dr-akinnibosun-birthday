@@ -1,41 +1,37 @@
-/* ================================================================
-   69 & GLORIOUS — Birthday Celebration App JS
-   ================================================================ */
+/**
+ * 69 & Glorious — Dr C.I Akinnibosun Birthday Website
+ * Features: Particles, Countdown, Interactive Cake, Gallery, Tributes, 
+ * Persistent Firebase Guestbook, Web Audio API Birthday Song.
+ */
 
-'use strict';
-
-// ================================================================
-// CONFIGURATION
-// ================================================================
+// ========== CONFIGURATION ==========
 const CONFIG = {
-  // Next birthday: change this to the actual date if known
-  birthdayDate: new Date('2026-02-28T00:00:00'),
-  candleCount: 6, // Display candles (simplified from 69)
+  birthdayDate: '2026-03-17T00:00:00', // March 17
+  celebrantName: 'Dr C.I Akinnibosun',
+  // Firebase config placeholder - User will need to add their own keys for full functionality
+  // I will implement a "pseudo-persistence" using LocalStorage if Firebase is not initialized
+  firebaseConfig: {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_PROJECT.firebaseapp.com",
+    projectId: "YOUR_PROJECT_ID",
+    storageBucket: "YOUR_PROJECT.appspot.com",
+    messagingSenderId: "YOUR_ID",
+    appId: "YOUR_APP_ID"
+  }
 };
 
-// Gallery data
-const GALLERY_ITEMS = [
-  { id: 1, category: 'family',     emoji: '👨‍👩‍👧‍👦', caption: 'A Legacy of Family Love',              bg: 'linear-gradient(135deg, #2c1810, #5a3020)' },
-  { id: 2, category: 'milestones', emoji: '🎓',      caption: 'Years of Achievement',                 bg: 'linear-gradient(135deg, #1a1530, #3a2060)' },
-  { id: 3, category: 'memories',   emoji: '🌸',      caption: 'Springtime Memories',                  bg: 'linear-gradient(135deg, #1a1025, #3a1545)' },
-  { id: 4, category: 'family',     emoji: '❤️',      caption: 'Love in Every Moment',                 bg: 'linear-gradient(135deg, #2a1015, #602030)' },
-  { id: 5, category: 'milestones', emoji: '🏆',      caption: 'Celebrating Every Win',                bg: 'linear-gradient(135deg, #1a1a10, #3a3515)' },
-  { id: 6, category: 'memories',   emoji: '🌅',      caption: 'Golden Sunrises',                      bg: 'linear-gradient(135deg, #1a0f05, #3a2010)' },
-  { id: 7, category: 'family',     emoji: '🤝',      caption: 'Together Through Everything',          bg: 'linear-gradient(135deg, #101a1a, #153a35)' },
-  { id: 8, category: 'milestones', emoji: '✨',      caption: '69 Glorious Years',                    bg: 'linear-gradient(135deg, #1a1510, #3a2c15)' },
-  { id: 9, category: 'memories',   emoji: '🎵',      caption: 'Songs of a Lifetime',                  bg: 'linear-gradient(135deg, #0f1520, #1a2a40)' },
-];
+// ========== STATE ==========
+let db = null;
+try {
+  if (typeof firebase !== 'undefined') {
+    firebase.initializeApp(CONFIG.firebaseConfig);
+    db = firebase.firestore();
+  }
+} catch (e) {
+  console.warn("Firebase not initialized. Using local storage for wishes.");
+}
 
-// Seed wishes
-const SEED_WISHES = [
-  { name: 'Adaeze Emmanuel', relation: 'Family', message: 'Mama, you are the glue that holds us all together. Your love is our greatest inheritance. Happy 69th!', emoji: '❤️' },
-  { name: 'The Grandchildren', relation: 'Family', message: 'Grandma, every memory with you is our favourite memory. Thank you for being our safe place always. 🎂', emoji: '🎂' },
-  { name: 'Chioma Okafor', relation: 'Friend', message: 'Six decades and then some of being the most remarkable woman I know. Here\'s to many more golden years!', emoji: '🥂' },
-];
-
-// ================================================================
-// DOM READY
-// ================================================================
+// ========== INITIALIZATION ==========
 document.addEventListener('DOMContentLoaded', () => {
   initPreloader();
   initParticles();
@@ -45,631 +41,614 @@ document.addEventListener('DOMContentLoaded', () => {
   initStatCounters();
   initCakeCandles();
   initGallery();
+  initLightbox();
   initCarousel();
   initGuestbook();
   initMusicPlayer();
-  initLightbox();
   initBackToTop();
   initConfetti();
+  
+  // Smooth scroll
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+      e.preventDefault();
+      const target = document.querySelector(this.getAttribute('href'));
+      if (target) {
+        const navHeight = document.getElementById('navbar').offsetHeight;
+        window.scrollTo({
+          top: target.offsetTop - navHeight,
+          behavior: 'smooth'
+        });
+        // Close mobile menu if open
+        document.querySelector('.nav-links').classList.remove('active');
+        document.getElementById('navToggle').classList.remove('active');
+      }
+    });
+  });
 });
 
-// ================================================================
-// PRELOADER
-// ================================================================
+// ========== PRELOADER ==========
 function initPreloader() {
   const preloader = document.getElementById('preloader');
-  setTimeout(() => {
-    preloader.classList.add('hidden');
-    document.body.style.overflow = 'visible';
-  }, 2400);
+  const fill = preloader.querySelector('.preloader-fill');
+  
+  let progress = 0;
+  const interval = setInterval(() => {
+    progress += Math.random() * 30;
+    if (progress >= 100) {
+      progress = 100;
+      clearInterval(interval);
+      setTimeout(() => {
+        preloader.classList.add('hidden');
+        document.body.style.overflow = 'auto';
+      }, 500);
+    }
+    fill.style.width = `${progress}%`;
+  }, 200);
 }
 
-// ================================================================
-// PARTICLE CANVAS
-// ================================================================
+// ========== PARTICLES ==========
 function initParticles() {
   const canvas = document.getElementById('particleCanvas');
   const ctx = canvas.getContext('2d');
   let particles = [];
-  let W, H;
-
+  
   function resize() {
-    W = canvas.width = window.innerWidth;
-    H = canvas.height = window.innerHeight;
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
   }
-  resize();
+  
   window.addEventListener('resize', resize);
-
-  const COLORS = [
-    'rgba(200,169,110,',
-    'rgba(240,208,128,',
-    'rgba(192,98,110,',
-    'rgba(255,255,255,',
-  ];
-
-  const SHAPES = ['circle', 'star', 'plus'];
-
+  resize();
+  
   class Particle {
-    constructor() { this.reset(true); }
-    reset(initial = false) {
-      this.x = Math.random() * W;
-      this.y = initial ? Math.random() * H : H + 20;
+    constructor() {
+      this.reset();
+    }
+    reset() {
+      this.x = Math.random() * canvas.width;
+      this.y = Math.random() * canvas.height;
       this.size = Math.random() * 3 + 1;
-      this.speed = Math.random() * 0.6 + 0.2;
+      this.speedX = Math.random() * 0.5 - 0.25;
+      this.speedY = Math.random() * 0.5 - 0.25;
+      this.color = Math.random() > 0.5 ? '#c8a96e' : '#c0626e';
       this.opacity = Math.random() * 0.5 + 0.1;
-      this.color = COLORS[Math.floor(Math.random() * COLORS.length)];
-      this.shape = SHAPES[Math.floor(Math.random() * SHAPES.length)];
-      this.drift = (Math.random() - 0.5) * 0.5;
-      this.angle = Math.random() * Math.PI * 2;
-      this.rotSpeed = (Math.random() - 0.5) * 0.04;
-      this.twinkle = Math.random() > 0.7;
-      this.twinkleSpeed = Math.random() * 0.02 + 0.005;
-      this.phase = Math.random() * Math.PI * 2;
     }
     update() {
-      this.y -= this.speed;
-      this.x += this.drift;
-      this.angle += this.rotSpeed;
-      this.phase += this.twinkleSpeed;
-      if (this.twinkle) {
-        this.opacity = 0.1 + Math.abs(Math.sin(this.phase)) * 0.4;
+      this.x += this.speedX;
+      this.y += this.speedY;
+      if (this.x < 0 || this.x > canvas.width || this.y < 0 || this.y > canvas.height) {
+        this.reset();
       }
-      if (this.y < -20) this.reset();
     }
     draw() {
-      ctx.save();
-      ctx.translate(this.x, this.y);
-      ctx.rotate(this.angle);
       ctx.globalAlpha = this.opacity;
-      ctx.fillStyle = this.color + this.opacity + ')';
-      ctx.strokeStyle = this.color + this.opacity * 0.5 + ')';
-      if (this.shape === 'circle') {
-        ctx.beginPath();
-        ctx.arc(0, 0, this.size, 0, Math.PI * 2);
-        ctx.fill();
-      } else if (this.shape === 'star') {
-        drawStar(ctx, 0, 0, 5, this.size * 2, this.size);
-        ctx.fill();
-      } else {
-        ctx.fillRect(-this.size/2, -this.size * 1.5, this.size, this.size * 3);
-        ctx.fillRect(-this.size * 1.5, -this.size/2, this.size * 3, this.size);
-      }
-      ctx.restore();
+      ctx.fillStyle = this.color;
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+      ctx.fill();
     }
   }
-
-  function drawStar(ctx, cx, cy, spikes, outerR, innerR) {
-    let rot = (Math.PI / 2) * 3;
-    const step = Math.PI / spikes;
-    ctx.beginPath();
-    ctx.moveTo(cx, cy - outerR);
-    for (let i = 0; i < spikes; i++) {
-      ctx.lineTo(cx + Math.cos(rot) * outerR, cy + Math.sin(rot) * outerR);
-      rot += step;
-      ctx.lineTo(cx + Math.cos(rot) * innerR, cy + Math.sin(rot) * innerR);
-      rot += step;
-    }
-    ctx.lineTo(cx, cy - outerR);
-    ctx.closePath();
+  
+  for (let i = 0; i < 80; i++) {
+    particles.push(new Particle());
   }
-
-  for (let i = 0; i < 80; i++) particles.push(new Particle());
-
+  
   function animate() {
-    ctx.clearRect(0, 0, W, H);
-    particles.forEach(p => { p.update(); p.draw(); });
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    particles.forEach(p => {
+      p.update();
+      p.draw();
+    });
     requestAnimationFrame(animate);
   }
   animate();
-
-  // Burst effect on click
-  canvas.addEventListener('click', (e) => {
-    for (let i = 0; i < 12; i++) {
+  
+  // Click burst
+  canvas.addEventListener('mousedown', (e) => {
+    for (let i = 0; i < 10; i++) {
       const p = new Particle();
       p.x = e.clientX;
       p.y = e.clientY;
-      p.speed = Math.random() * 3 + 1;
-      p.opacity = 0.8;
-      p.size = Math.random() * 4 + 2;
+      p.speedX = (Math.random() - 0.5) * 5;
+      p.speedY = (Math.random() - 0.5) * 5;
       particles.push(p);
+      setTimeout(() => particles.shift(), 2000);
     }
-    if (particles.length > 150) particles.splice(0, 20);
   });
 }
 
-// ================================================================
-// NAVBAR
-// ================================================================
+// ========== NAVBAR ==========
 function initNavbar() {
   const navbar = document.getElementById('navbar');
-  const toggle = document.getElementById('navToggle');
-  const links = document.querySelector('.nav-links');
-
+  const navToggle = document.getElementById('navToggle');
+  const navLinks = document.querySelector('.nav-links');
+  
   window.addEventListener('scroll', () => {
-    navbar.classList.toggle('scrolled', window.scrollY > 60);
-    document.getElementById('backToTop').classList.toggle('visible', window.scrollY > 400);
+    if (window.scrollY > 50) {
+      navbar.classList.add('scrolled');
+    } else {
+      navbar.classList.remove('scrolled');
+    }
   });
-
-  toggle.addEventListener('click', () => {
-    links.classList.toggle('open');
-  });
-
-  document.querySelectorAll('.nav-links a').forEach(link => {
-    link.addEventListener('click', () => links.classList.remove('open'));
+  
+  navToggle.addEventListener('click', () => {
+    navToggle.classList.toggle('active');
+    navLinks.classList.toggle('active');
   });
 }
 
-// ================================================================
-// HERO COUNTDOWN
-// ================================================================
+// ========== HERO COUNTDOWN ==========
 function initHeroCountdown() {
-  const birthday = CONFIG.birthdayDate;
-  const daysEl = document.getElementById('cd-days');
-  const hoursEl = document.getElementById('cd-hours');
-  const minsEl = document.getElementById('cd-mins');
-  const secsEl = document.getElementById('cd-secs');
-  const countdownEl = document.getElementById('heroCountdown');
-
+  const targetDate = new Date(CONFIG.birthdayDate).getTime();
+  
   function update() {
-    const now = new Date();
-    const target = new Date(birthday);
-    // If birthday passed, set next year
-    if (target < now) {
-      target.setFullYear(now.getFullYear() + 1);
-    }
-    const diff = target - now;
+    const now = new Date().getTime();
+    const diff = targetDate - now;
+    
     if (diff <= 0) {
-      countdownEl.innerHTML = '<div class="cd-num" style="-webkit-text-fill-color: var(--gold-light); font-size: clamp(1.5rem, 4vw, 2.5rem);">🎉 It\'s Your Birthday! 🎂</div>';
+      document.getElementById('heroCountdown').innerHTML = "<h2 class='celebrate-text'>Happy 69th Birthday Dr C.I Akinnibosun! 🎉</h2>";
       return;
     }
-    const days  = Math.floor(diff / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const mins  = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-    const secs  = Math.floor((diff % (1000 * 60)) / 1000);
-
-    const fmt = (n) => String(n).padStart(2, '0');
-    daysEl.textContent  = fmt(days);
-    hoursEl.textContent = fmt(hours);
-    minsEl.textContent  = fmt(mins);
-    secsEl.textContent  = fmt(secs);
+    
+    const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    const s = Math.floor((diff % (1000 * 60)) / 1000);
+    
+    document.getElementById('cd-days').innerText = d.toString().padStart(2, '0');
+    document.getElementById('cd-hours').innerText = h.toString().padStart(2, '0');
+    document.getElementById('cd-mins').innerText = m.toString().padStart(2, '0');
+    document.getElementById('cd-secs').innerText = s.toString().padStart(2, '0');
   }
-  update();
+  
   setInterval(update, 1000);
+  update();
 }
 
-// ================================================================
-// SCROLL REVEAL
-// ================================================================
+// ========== REVEAL ANIMATIONS ==========
 function initRevealAnimations() {
-  const els = document.querySelectorAll('.reveal');
-
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach((entry, i) => {
-      if (entry.isIntersecting) {
-        setTimeout(() => {
-          entry.target.classList.add('visible');
-        }, 80);
-        observer.unobserve(entry.target);
-      }
-    });
-  }, { threshold: 0.12 });
-
-  els.forEach(el => observer.observe(el));
-}
-
-// ================================================================
-// STAT COUNTERS
-// ================================================================
-function initStatCounters() {
-  const numbers = document.querySelectorAll('.stat-number[data-target]');
+  const reveals = document.querySelectorAll('.reveal');
+  
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
-        countUp(entry.target);
+        entry.target.classList.add('active');
+      }
+    });
+  }, { threshold: 0.1 });
+  
+  reveals.forEach(r => observer.observe(r));
+}
+
+// ========== STAT COUNTERS ==========
+function initStatCounters() {
+  const stats = document.querySelectorAll('.stat-number');
+  
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const target = parseInt(entry.target.getAttribute('data-target'));
+        animateValue(entry.target, 0, target, 2000);
         observer.unobserve(entry.target);
       }
     });
-  }, { threshold: 0.5 });
-
-  numbers.forEach(el => observer.observe(el));
-}
-
-function countUp(el) {
-  const target = parseInt(el.dataset.target);
-  const duration = 1800;
-  const start = Date.now();
-
-  function tick() {
-    const progress = Math.min((Date.now() - start) / duration, 1);
-    const ease = 1 - Math.pow(1 - progress, 3);
-    el.textContent = Math.floor(ease * target);
-    if (progress < 1) requestAnimationFrame(tick);
-    else el.textContent = target + (target === 1000 ? '+' : '');
+  }, { threshold: 1 });
+  
+  function animateValue(obj, start, end, duration) {
+    let startTimestamp = null;
+    const step = (timestamp) => {
+      if (!startTimestamp) startTimestamp = timestamp;
+      const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+      obj.innerHTML = Math.floor(progress * (end - start) + start);
+      if (progress < 1) {
+        window.requestAnimationFrame(step);
+      }
+    };
+    window.requestAnimationFrame(step);
   }
-  tick();
+  
+  stats.forEach(s => observer.observe(s));
 }
 
-// ================================================================
-// CAKE CANDLES
-// ================================================================
+// ========== CAKE & CANDLES ==========
 function initCakeCandles() {
   const row = document.getElementById('candleRow');
-  const wishPrompt = document.getElementById('wishPrompt');
   const relightBtn = document.getElementById('relight');
-  let lit = CONFIG.candleCount;
-
-  // Create candles
-  for (let i = 0; i < CONFIG.candleCount; i++) {
-    const candle = document.createElement('div');
-    candle.className = 'candle';
-    candle.innerHTML = `
-      <div class="candle-flame" id="flame${i}"></div>
-      <div class="candle-smoke" id="smoke${i}"></div>
-      <div class="candle-wick"></div>
-      <div class="candle-body"></div>
-    `;
-    candle.addEventListener('click', () => blowOut(i));
-    row.appendChild(candle);
-  }
-
-  function blowOut(i) {
-    const flame = document.getElementById('flame' + i);
-    const smoke = document.getElementById('smoke' + i);
-    if (!flame || flame.classList.contains('out')) return;
-    flame.classList.add('out');
-    smoke.style.display = 'block';
-    setTimeout(() => { if (smoke) smoke.style.display = 'none'; }, 1000);
-    lit--;
-    if (lit <= 0) {
-      wishPrompt.style.display = 'block';
-      relightBtn.style.display = 'inline-block';
-      triggerMiniConfetti();
-    }
-  }
-
-  relightBtn.addEventListener('click', () => {
-    for (let i = 0; i < CONFIG.candleCount; i++) {
-      const flame = document.getElementById('flame' + i);
-      if (flame) flame.classList.remove('out');
-    }
-    lit = CONFIG.candleCount;
+  const wishPrompt = document.getElementById('wishPrompt');
+  let blownOutCount = 0;
+  const totalCandles = 6;
+  
+  function createCandles() {
+    row.innerHTML = '';
+    blownOutCount = 0;
     wishPrompt.style.display = 'none';
     relightBtn.style.display = 'none';
-  });
-
-  document.getElementById('cake-section')?.addEventListener('click', (e) => {
-    if (e.target.closest('.candle')) return;
-    // Blow out all candles when clicking cake
-  });
-}
-
-// ================================================================
-// GALLERY
-// ================================================================
-function initGallery() {
-  const grid = document.getElementById('galleryGrid');
-  const filterBtns = document.querySelectorAll('.filter-btn');
-  let lightboxItems = [];
-  let currentLightboxIndex = 0;
-
-  // Build gallery cards
-  GALLERY_ITEMS.forEach((item, idx) => {
-    const card = document.createElement('div');
-    card.className = 'gallery-card';
-    card.dataset.category = item.category;
-    card.innerHTML = `
-      <div class="gallery-card-inner" style="background: ${item.bg};">
-        <div class="gallery-placeholder">
-          <span class="gallery-icon">${item.emoji}</span>
-          <p>${item.caption}</p>
-        </div>
-      </div>
-      <div class="gallery-overlay">
-        <div class="gallery-caption">${item.caption}</div>
-      </div>
-    `;
-    card.addEventListener('click', () => openLightbox(idx));
-    grid.appendChild(card);
-    lightboxItems.push(item);
-  });
-
-  window._galleryItems = lightboxItems;
-
-  // Filter
-  filterBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      filterBtns.forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      const filter = btn.dataset.filter;
-      document.querySelectorAll('.gallery-card').forEach(card => {
-        const matches = filter === 'all' || card.dataset.category === filter;
-        card.classList.toggle('hidden', !matches);
-        if (matches) {
-          card.style.animation = 'none';
-          card.offsetHeight;
-          card.style.animation = '';
+    
+    for (let i = 0; i < totalCandles; i++) {
+      const candle = document.createElement('div');
+      candle.className = 'candle';
+      candle.innerHTML = '<div class="flame"></div><div class="smoke"></div>';
+      candle.addEventListener('click', () => {
+        if (!candle.classList.contains('out')) {
+          candle.classList.add('out');
+          blownOutCount++;
+          if (blownOutCount === totalCandles) {
+            celebrateWish();
+          }
         }
       });
+      row.appendChild(candle);
+    }
+  }
+  
+  function celebrateWish() {
+    wishPrompt.style.display = 'block';
+    relightBtn.style.display = 'inline-block';
+    triggerConfetti();
+  }
+  
+  relightBtn.addEventListener('click', createCandles);
+  createCandles();
+}
+
+// ========== GALLERY ==========
+const GALLERY_ITEMS = [
+  { id: 1, category: 'family', title: 'With Family', img: 'images/gallery-1.jpg' },
+  { id: 2, category: 'milestones', title: 'The Ordination', img: 'images/gallery-2.jpg' },
+  { id: 3, category: 'memories', title: 'Joyful Times', img: 'images/gallery-3.jpg' },
+  { id: 4, category: 'family', title: 'Grandchildren Love', img: 'images/gallery-4.jpg' },
+  { id: 5, category: 'milestones', title: '60th Celebration', img: 'images/gallery-5.jpg' },
+  { id: 6, category: 'memories', title: 'Quiet Reflection', img: 'images/gallery-6.jpg' },
+  { id: 7, category: 'family', title: 'The Pillars', img: 'images/gallery-7.jpg' },
+  { id: 8, category: 'milestones', title: 'New Heights', img: 'images/gallery-8.jpg' },
+  { id: 9, category: 'memories', title: 'Beautiful Day', img: 'images/gallery-9.jpg' }
+];
+
+function initGallery() {
+  const grid = document.getElementById('galleryGrid');
+  const filters = document.querySelectorAll('.filter-btn');
+  
+  function render(filter = 'all') {
+    grid.innerHTML = '';
+    const filtered = filter === 'all' ? GALLERY_ITEMS : GALLERY_ITEMS.filter(item => item.category === filter);
+    
+    filtered.forEach(item => {
+      const card = document.createElement('div');
+      card.className = 'gallery-card reveal active';
+      card.innerHTML = `
+        <img src="${item.img}" alt="${item.title}" onerror="this.src='https://via.placeholder.com/400x500/1a1a2e/c8a96e?text=${item.title}'">
+        <div class="gallery-overlay">
+          <span>${item.title}</span>
+          <button class="gallery-view-btn" data-id="${item.id}">View View</button>
+        </div>
+      `;
+      grid.appendChild(card);
+    });
+  }
+  
+  filters.forEach(btn => {
+    btn.addEventListener('click', () => {
+      filters.forEach(f => f.classList.remove('active'));
+      btn.classList.add('active');
+      render(btn.dataset.filter);
     });
   });
+  
+  render();
 }
 
-// ================================================================
-// LIGHTBOX
-// ================================================================
+// ========== LIGHTBOX ==========
 function initLightbox() {
   const lightbox = document.getElementById('lightbox');
-  const closeBtn = document.getElementById('lightboxClose');
-  const prevBtn  = document.getElementById('lightboxPrev');
-  const nextBtn  = document.getElementById('lightboxNext');
-  const img      = document.getElementById('lightboxImg');
-  const caption  = document.getElementById('lightboxCaption');
-  const placeholder = document.getElementById('lightboxPlaceholder');
-
-  let current = 0;
-
-  window.openLightbox = (idx) => {
-    current = idx;
-    showLightboxItem(current);
-    lightbox.classList.add('open');
+  const img = document.getElementById('lightboxImg');
+  const caption = document.getElementById('lightboxCaption');
+  const close = document.getElementById('lightboxClose');
+  const prev = document.getElementById('lightboxPrev');
+  const next = document.getElementById('lightboxNext');
+  
+  let currentIndex = 0;
+  
+  document.getElementById('galleryGrid').addEventListener('click', (e) => {
+    if (e.target.classList.contains('gallery-view-btn')) {
+      const id = parseInt(e.target.dataset.id);
+      currentIndex = GALLERY_ITEMS.findIndex(item => item.id === id);
+      showLightbox();
+    }
+  });
+  
+  function showLightbox() {
+    const item = GALLERY_ITEMS[currentIndex];
+    img.src = item.img;
+    img.onerror = () => { img.src = `https://via.placeholder.com/800x600/1a1a2e/c8a96e?text=${item.title}`; };
+    caption.innerText = item.title;
+    lightbox.classList.add('active');
     document.body.style.overflow = 'hidden';
-  };
-
-  function showLightboxItem(idx) {
-    const items = window._galleryItems || [];
-    const item = items[idx];
-    if (!item) return;
-    img.style.display = 'none';
-    placeholder.style.display = 'flex';
-    placeholder.innerHTML = `<span>${item.emoji}</span><p>${item.caption}</p>`;
-    caption.textContent = item.caption;
   }
-
-  function close() {
-    lightbox.classList.remove('open');
-    document.body.style.overflow = '';
-  }
-
-  closeBtn.addEventListener('click', close);
-  lightbox.addEventListener('click', (e) => { if (e.target === lightbox) close(); });
-
-  prevBtn.addEventListener('click', () => {
-    const items = window._galleryItems || [];
-    current = (current - 1 + items.length) % items.length;
-    showLightboxItem(current);
+  
+  close.addEventListener('click', () => {
+    lightbox.classList.remove('active');
+    document.body.style.overflow = 'auto';
   });
-  nextBtn.addEventListener('click', () => {
-    const items = window._galleryItems || [];
-    current = (current + 1) % items.length;
-    showLightboxItem(current);
+  
+  prev.addEventListener('click', () => {
+    currentIndex = (currentIndex - 1 + GALLERY_ITEMS.length) % GALLERY_ITEMS.length;
+    showLightbox();
   });
-
-  document.addEventListener('keydown', (e) => {
-    if (!lightbox.classList.contains('open')) return;
-    if (e.key === 'Escape') close();
-    if (e.key === 'ArrowLeft') prevBtn.click();
-    if (e.key === 'ArrowRight') nextBtn.click();
+  
+  next.addEventListener('click', () => {
+    currentIndex = (currentIndex + 1) % GALLERY_ITEMS.length;
+    showLightbox();
   });
 }
 
-// ================================================================
-// TRIBUTES CAROUSEL
-// ================================================================
+// ========== TRIBUTES CAROUSEL ==========
 function initCarousel() {
-  const cards = document.querySelectorAll('.tribute-card');
+  const carousel = document.getElementById('tributesCarousel');
+  const cards = carousel.querySelectorAll('.tribute-card');
   const dotsContainer = document.getElementById('carouselDots');
-  const prevBtn = document.getElementById('carouselPrev');
-  const nextBtn = document.getElementById('carouselNext');
+  const prev = document.getElementById('carouselPrev');
+  const next = document.getElementById('carouselNext');
   let current = 0;
-  let autoTimer;
-
+  
   // Create dots
   cards.forEach((_, i) => {
     const dot = document.createElement('div');
-    dot.className = 'carousel-dot' + (i === 0 ? ' active' : '');
-    dot.addEventListener('click', () => goTo(i));
+    dot.className = i === 0 ? 'dot active' : 'dot';
+    dot.addEventListener('click', () => showSlide(i));
     dotsContainer.appendChild(dot);
   });
-
-  function goTo(idx) {
+  
+  const dots = dotsContainer.querySelectorAll('.dot');
+  
+  function showSlide(index) {
     cards[current].classList.remove('active');
-    dotsContainer.children[current].classList.remove('active');
-    current = (idx + cards.length) % cards.length;
+    dots[current].classList.remove('active');
+    current = index;
     cards[current].classList.add('active');
-    dotsContainer.children[current].classList.add('active');
+    dots[current].classList.add('active');
   }
-
-  prevBtn.addEventListener('click', () => { goTo(current - 1); resetAuto(); });
-  nextBtn.addEventListener('click', () => { goTo(current + 1); resetAuto(); });
-
-  function resetAuto() {
-    clearInterval(autoTimer);
-    autoTimer = setInterval(() => goTo(current + 1), 5000);
-  }
-  resetAuto();
+  
+  next.addEventListener('click', () => {
+    let n = (current + 1) % cards.length;
+    showSlide(n);
+  });
+  
+  prev.addEventListener('click', () => {
+    let p = (current - 1 + cards.length) % cards.length;
+    showSlide(p);
+  });
+  
+  setInterval(() => {
+    let n = (current + 1) % cards.length;
+    showSlide(n);
+  }, 6000);
 }
 
-// ================================================================
-// GUESTBOOK / WISHES
-// ================================================================
+// ========== GUESTBOOK (FIREBASE) ==========
+const SEED_WISHES = [
+  { name: 'Deacon Jones', relation: 'Colleague', msg: 'Happy 69th Birthday to a great teacher! Your insights into the Word have been a blessing.', emoji: '🙏' },
+  { name: 'Olamide A.', relation: 'Family', msg: 'We love you so much Grandpa! You are the best.', emoji: '❤️' },
+  { name: 'The Choir', relation: 'Friend', msg: 'Cheers to many more years of grace and powerful ministry!', emoji: '🥂' }
+];
+
 function initGuestbook() {
-  const form    = document.getElementById('wishForm');
-  const wall    = document.getElementById('wishesWall');
-  const emojiPicker = document.getElementById('emojiPicker');
+  const form = document.getElementById('wishForm');
+  const emojiOpt = document.querySelectorAll('.emoji-opt');
   let selectedEmoji = '🎂';
-
-  // Seed wishes
-  SEED_WISHES.forEach(w => addWishCard(w));
-
-  // Emoji picker
-  emojiPicker.querySelectorAll('.emoji-opt').forEach(opt => {
+  
+  emojiOpt.forEach(opt => {
     opt.addEventListener('click', () => {
-      emojiPicker.querySelectorAll('.emoji-opt').forEach(o => o.classList.remove('selected'));
+      emojiOpt.forEach(o => o.classList.remove('selected'));
       opt.classList.add('selected');
       selectedEmoji = opt.dataset.emoji;
     });
   });
-
-  // Form submission
-  form.addEventListener('submit', (e) => {
+  
+  // Load wishes
+  loadWishes();
+  
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const name     = document.getElementById('wishName').value.trim();
-    const relation = document.getElementById('wishRelation').value;
-    const message  = document.getElementById('wishMessage').value.trim();
-
-    if (!name || !message) return;
-
-    const wish = { name, relation, message, emoji: selectedEmoji };
-    addWishCard(wish, true);
-
+    const wish = {
+      name: document.getElementById('wishName').value,
+      relation: document.getElementById('wishRelation').value,
+      msg: document.getElementById('wishMessage').value,
+      emoji: selectedEmoji,
+      timestamp: Date.now()
+    };
+    
+    // Save Wish
+    await saveWish(wish);
+    
+    // UI Update
+    addWishToWall(wish, true);
     form.reset();
-    emojiPicker.querySelectorAll('.emoji-opt').forEach(o => o.classList.remove('selected'));
-    emojiPicker.querySelector('[data-emoji="🎂"]').classList.add('selected');
-    selectedEmoji = '🎂';
-
-    // Tiny celebration
-    triggerMiniConfetti();
+    triggerConfetti();
   });
+}
 
-  function addWishCard(wish, prepend = false) {
-    const card = document.createElement('div');
-    card.className = 'wish-card';
-    const initial = wish.name.charAt(0).toUpperCase();
-    card.innerHTML = `
-      <div class="wish-card-header">
-        <div class="wish-avatar">${initial}</div>
-        <div class="wish-meta">
-          <div class="wish-name">${escapeHTML(wish.name)}</div>
-          <div class="wish-relation">${escapeHTML(wish.relation)}</div>
-        </div>
-        <div class="wish-emoji">${wish.emoji}</div>
-      </div>
-      <div class="wish-message">"${escapeHTML(wish.message)}"</div>
-    `;
-    if (prepend && wall.firstChild) {
-      wall.insertBefore(card, wall.firstChild);
-    } else {
-      wall.appendChild(card);
+async function saveWish(wish) {
+  if (db) {
+    try {
+      await db.collection('wishes').add(wish);
+    } catch (e) {
+      console.error("Firebase save failed:", e);
+      saveLocally(wish);
     }
-    setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100);
+  } else {
+    saveLocally(wish);
   }
 }
 
-function escapeHTML(str) {
-  const d = document.createElement('div');
-  d.textContent = str;
-  return d.innerHTML;
+function saveLocally(wish) {
+  const wishes = JSON.parse(localStorage.getItem('birthday_wishes') || '[]');
+  wishes.push(wish);
+  localStorage.setItem('birthday_wishes', JSON.stringify(wishes));
 }
 
-// ================================================================
-// MUSIC PLAYER
-// ================================================================
-function initMusicPlayer() {
-  const player = document.getElementById('musicPlayer');
-  const toggle = document.getElementById('musicToggle');
-  const icon   = toggle.querySelector('.music-icon');
-  let isPlaying = false;
+function loadWishes() {
+  const wall = document.getElementById('wishesWall');
+  wall.innerHTML = '';
+  
+  // Initial seeds
+  SEED_WISHES.forEach(w => addWishToWall(w));
+  
+  if (db) {
+    db.collection('wishes').orderBy('timestamp', 'desc').onSnapshot(snapshot => {
+      // Clear and re-render or just append? 
+      // For simplicity, we clear and re-render dynamic ones
+      const dynamicWishes = snapshot.docs.map(doc => doc.data());
+      renderDynamicWishes(dynamicWishes);
+    });
+  } else {
+    const local = JSON.parse(localStorage.getItem('birthday_wishes') || '[]');
+    renderDynamicWishes(local);
+  }
+}
 
-  // Create audio element (Happy Birthday melody — data URI workaround for demo)
-  const audio = new Audio();
-  // Use a royalty-free birthday tune URL as demo
-  // In production, replace with actual audio file path
-  audio.src = 'music/birthday.mp3';
-  audio.loop = true;
-  audio.volume = 0.5;
+function renderDynamicWishes(wishes) {
+  const wall = document.getElementById('wishesWall');
+  // Keep seeds, clear others? Let's just keep seeds at top
+  // Remove all cards that aren't seeds
+  const cards = wall.querySelectorAll('.wish-card');
+  cards.forEach(c => {
+    if (!c.classList.contains('seed')) c.remove();
+  });
+  wishes.forEach(w => addWishToWall(w, false, false));
+}
+
+function addWishToWall(wish, isNew = false, isSeed = true) {
+  const wall = document.getElementById('wishesWall');
+  const card = document.createElement('div');
+  card.className = `wish-card${isNew ? ' new' : ''}${isSeed ? ' seed' : ''}`;
+  card.innerHTML = `
+    <div class="wish-emoji">${wish.emoji}</div>
+    <div class="wish-text">"${wish.msg}"</div>
+    <div class="wish-meta">
+      <strong>${wish.name}</strong> • ${wish.relation}
+    </div>
+  `;
+  wall.prepend(card);
+}
+
+// ========== MUSIC PLAYER (WEB AUDIO API) ==========
+function initMusicPlayer() {
+  const toggle = document.getElementById('musicToggle');
+  const player = document.getElementById('musicPlayer');
+  let audioCtx = null;
+  let isPlaying = false;
+  let birthdayLoop = null;
 
   toggle.addEventListener('click', () => {
-    if (isPlaying) {
-      audio.pause();
-      player.classList.remove('playing');
-      icon.textContent = '♪';
-      isPlaying = false;
-    } else {
-      audio.play().catch(() => {
-        // Audio play might fail without user interaction on first load
-        // Show info instead
-        player.classList.add('playing');
-        icon.textContent = '⏸';
-        isPlaying = true;
-      });
-      player.classList.add('playing');
-      icon.textContent = '⏸';
-      isPlaying = true;
+    if (!audioCtx) {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     }
+    
+    if (isPlaying) {
+      stopBirthdaySong();
+    } else {
+      playBirthdaySong();
+    }
+    
+    isPlaying = !isPlaying;
+    player.classList.toggle('playing', isPlaying);
+  });
+
+  // Simple "Happy Birthday" melody using oscillators
+  const melody = [
+    {note: 261.63, duration: 0.4}, {note: 261.63, duration: 0.2}, {note: 293.66, duration: 0.6}, {note: 261.63, duration: 0.6}, {note: 349.23, duration: 0.6}, {note: 329.63, duration: 1.2},
+    {note: 261.63, duration: 0.4}, {note: 261.63, duration: 0.2}, {note: 293.66, duration: 0.6}, {note: 261.63, duration: 0.6}, {note: 392.00, duration: 0.6}, {note: 349.23, duration: 1.2},
+    {note: 261.63, duration: 0.4}, {note: 261.63, duration: 0.2}, {note: 523.25, duration: 0.6}, {note: 440.00, duration: 0.6}, {note: 349.23, duration: 0.6}, {note: 329.63, duration: 0.6}, {note: 293.66, duration: 1.2},
+    {note: 466.16, duration: 0.4}, {note: 466.16, duration: 0.2}, {note: 440.00, duration: 0.6}, {note: 349.23, duration: 0.6}, {note: 392.00, duration: 0.6}, {note: 349.23, duration: 1.2}
+  ];
+
+  function playNote(freq, start, duration) {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(freq, start);
+    
+    gain.gain.setValueAtTime(0, start);
+    gain.gain.linearRampToValueAtTime(0.1, start + 0.05);
+    gain.gain.exponentialRampToValueAtTime(0.001, start + duration);
+    
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    
+    osc.start(start);
+    osc.stop(start + duration);
+  }
+
+  function playBirthdaySong() {
+    let now = audioCtx.currentTime;
+    let totalDuration = 0;
+    
+    melody.forEach(m => {
+      playNote(m.note, now + totalDuration, m.duration);
+      totalDuration += m.duration;
+    });
+
+    birthdayLoop = setTimeout(() => {
+      if (isPlaying) playBirthdaySong();
+    }, totalDuration * 1000 + 500);
+  }
+
+  function stopBirthdaySong() {
+    clearTimeout(birthdayLoop);
+    if (audioCtx) audioCtx.suspend();
+  }
+  
+  window.addEventListener('blur', () => {
+    if (isPlaying) stopBirthdaySong();
+  });
+  window.addEventListener('focus', () => {
+    if (isPlaying) audioCtx.resume();
   });
 }
 
-// ================================================================
-// BACK TO TOP
-// ================================================================
+// ========== BACK TO TOP ==========
 function initBackToTop() {
-  document.getElementById('backToTop').addEventListener('click', () => {
+  const btn = document.getElementById('backToTop');
+  window.addEventListener('scroll', () => {
+    if (window.scrollY > 400) {
+      btn.classList.add('visible');
+    } else {
+      btn.classList.remove('visible');
+    }
+  });
+  btn.addEventListener('click', () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   });
 }
 
-// ================================================================
-// CONFETTI
-// ================================================================
+// ========== CONFETTI ==========
 function initConfetti() {
-  document.getElementById('throwConfetti')?.addEventListener('click', () => {
-    launchConfetti(200);
-  });
+  document.getElementById('throwConfetti').addEventListener('click', triggerConfetti);
 }
 
-function launchConfetti(count = 120) {
-  const colors = ['#f0d080', '#c8a96e', '#c0626e', '#ffffff', '#a0783a', '#e8909a'];
-  for (let i = 0; i < count; i++) {
-    const piece = document.createElement('div');
-    piece.className = 'confetti-piece';
-    const color = colors[Math.floor(Math.random() * colors.length)];
-    const startX = Math.random() * 100;
-    const dx = (Math.random() - 0.5) * 200;
-    const rot = Math.random() * 720 - 360;
-    const size = Math.random() * 8 + 4;
-    const dur = Math.random() * 2.5 + 2;
-    piece.style.cssText = `
-      left: ${startX}vw;
-      top: -20px;
-      width: ${size}px;
-      height: ${size}px;
-      background: ${color};
-      --dx: ${dx}px;
-      --rot: ${rot}deg;
-      animation-duration: ${dur}s;
-      animation-delay: ${Math.random() * 0.5}s;
-      border-radius: ${Math.random() > 0.5 ? '50%' : '2px'};
-    `;
-    document.body.appendChild(piece);
-    setTimeout(() => piece.remove(), (dur + 0.5) * 1000);
+function triggerConfetti() {
+  // Simplistic CSS-based confetti or canvas logic
+  // For maximum WOW, let's create 100 elements
+  const container = document.body;
+  for (let i = 0; i < 100; i++) {
+    const c = document.createElement('div');
+    c.className = 'confetti-piece';
+    c.style.left = `${Math.random() * 100}%`;
+    c.style.top = `-20px`;
+    c.style.backgroundColor = ['#c8a96e', '#c0626e', '#f0d080', '#ffffff'][Math.floor(Math.random() * 4)];
+    c.style.transform = `rotate(${Math.random() * 360}deg)`;
+    container.appendChild(c);
+    
+    const animation = c.animate([
+      { transform: `translate3d(0,0,0) rotate(0deg)`, opacity: 1 },
+      { transform: `translate3d(${(Math.random() - 0.5) * 200}px, ${window.innerHeight + 20}px, 0) rotate(${Math.random() * 1000}deg)`, opacity: 0 }
+    ], {
+      duration: Math.random() * 3000 + 2000,
+      easing: 'cubic-bezier(0, .9, .57, 1)'
+    });
+    
+    animation.onfinish = () => c.remove();
   }
 }
-
-function triggerMiniConfetti() {
-  launchConfetti(60);
-}
-
-// ================================================================
-// PARALLAX HERO BG NUMBER
-// ================================================================
-window.addEventListener('scroll', () => {
-  const bgNum = document.querySelector('.hero-bg-number');
-  if (bgNum) {
-    const scroll = window.scrollY;
-    bgNum.style.transform = `translate(-50%, calc(-50% + ${scroll * 0.3}px))`;
-  }
-});
-
-// ================================================================
-// SMOOTH ANCHOR SCROLLING WITH OFFSET FOR FIXED NAV
-// ================================================================
-document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-  anchor.addEventListener('click', function(e) {
-    const target = document.querySelector(this.getAttribute('href'));
-    if (!target) return;
-    e.preventDefault();
-    const offset = 80;
-    const top = target.getBoundingClientRect().top + window.scrollY - offset;
-    window.scrollTo({ top, behavior: 'smooth' });
-  });
-});
