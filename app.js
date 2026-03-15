@@ -15,15 +15,15 @@ const CONFIG = {
 
 // Gallery data
 const GALLERY_ITEMS = [
-  { id: 1, category: 'family',     emoji: '👨‍👩‍👧‍👦', caption: 'A Legacy of Family Love',              bg: 'linear-gradient(135deg, #2c1810, #5a3020)' },
-  { id: 2, category: 'milestones', emoji: '🎓',      caption: 'Years of Achievement',                 bg: 'linear-gradient(135deg, #1a1530, #3a2060)' },
-  { id: 3, category: 'memories',   emoji: '🌸',      caption: 'Springtime Memories',                  bg: 'linear-gradient(135deg, #1a1025, #3a1545)' },
-  { id: 4, category: 'family',     emoji: '❤️',      caption: 'Love in Every Moment',                 bg: 'linear-gradient(135deg, #2a1015, #602030)' },
-  { id: 5, category: 'milestones', emoji: '🏆',      caption: 'Celebrating Every Win',                bg: 'linear-gradient(135deg, #1a1a10, #3a3515)' },
-  { id: 6, category: 'memories',   emoji: '🌅',      caption: 'Golden Sunrises',                      bg: 'linear-gradient(135deg, #1a0f05, #3a2010)' },
-  { id: 7, category: 'family',     emoji: '🤝',      caption: 'Together Through Everything',          bg: 'linear-gradient(135deg, #101a1a, #153a35)' },
-  { id: 8, category: 'milestones', emoji: '✨',      caption: '69 Glorious Years',                    bg: 'linear-gradient(135deg, #1a1510, #3a2c15)' },
-  { id: 9, category: 'memories',   emoji: '🎵',      caption: 'Songs of a Lifetime',                  bg: 'linear-gradient(135deg, #0f1520, #1a2a40)' },
+  { id: 1, category: 'family', emoji: '👨‍👩‍👧‍👦', caption: 'A Legacy of Family Love', bg: 'linear-gradient(135deg, #2c1810, #5a3020)' },
+  { id: 2, category: 'milestones', emoji: '🎓', caption: 'Years of Achievement', bg: 'linear-gradient(135deg, #1a1530, #3a2060)' },
+  { id: 3, category: 'memories', emoji: '🌸', caption: 'Springtime Memories', bg: 'linear-gradient(135deg, #1a1025, #3a1545)' },
+  { id: 4, category: 'family', emoji: '❤️', caption: 'Love in Every Moment', bg: 'linear-gradient(135deg, #2a1015, #602030)' },
+  { id: 5, category: 'milestones', emoji: '🏆', caption: 'Celebrating Every Win', bg: 'linear-gradient(135deg, #1a1a10, #3a3515)' },
+  { id: 6, category: 'memories', emoji: '🌅', caption: 'Golden Sunrises', bg: 'linear-gradient(135deg, #1a0f05, #3a2010)' },
+  { id: 7, category: 'family', emoji: '🤝', caption: 'Together Through Everything', bg: 'linear-gradient(135deg, #101a1a, #153a35)' },
+  { id: 8, category: 'milestones', emoji: '✨', caption: '69 Glorious Years', bg: 'linear-gradient(135deg, #1a1510, #3a2c15)' },
+  { id: 9, category: 'memories', emoji: '🎵', caption: 'Songs of a Lifetime', bg: 'linear-gradient(135deg, #0f1520, #1a2a40)' },
 ];
 
 // Seed wishes
@@ -131,8 +131,8 @@ function initParticles() {
         drawStar(ctx, 0, 0, 5, this.size * 2, this.size);
         ctx.fill();
       } else {
-        ctx.fillRect(-this.size/2, -this.size * 1.5, this.size, this.size * 3);
-        ctx.fillRect(-this.size * 1.5, -this.size/2, this.size * 3, this.size);
+        ctx.fillRect(-this.size / 2, -this.size * 1.5, this.size, this.size * 3);
+        ctx.fillRect(-this.size * 1.5, -this.size / 2, this.size * 3, this.size);
       }
       ctx.restore();
     }
@@ -222,16 +222,16 @@ function initHeroCountdown() {
       countdownEl.innerHTML = '<div class="cd-num" style="-webkit-text-fill-color: var(--gold-light); font-size: clamp(1.5rem, 4vw, 2.5rem);">🎉 It\'s Your Birthday! 🎂</div>';
       return;
     }
-    const days  = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
     const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const mins  = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-    const secs  = Math.floor((diff % (1000 * 60)) / 1000);
+    const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    const secs = Math.floor((diff % (1000 * 60)) / 1000);
 
     const fmt = (n) => String(n).padStart(2, '0');
-    daysEl.textContent  = fmt(days);
+    daysEl.textContent = fmt(days);
     hoursEl.textContent = fmt(hours);
-    minsEl.textContent  = fmt(mins);
-    secsEl.textContent  = fmt(secs);
+    minsEl.textContent = fmt(mins);
+    secsEl.textContent = fmt(secs);
   }
   update();
   setInterval(update, 1000);
@@ -400,10 +400,10 @@ function initGallery() {
 function initLightbox() {
   const lightbox = document.getElementById('lightbox');
   const closeBtn = document.getElementById('lightboxClose');
-  const prevBtn  = document.getElementById('lightboxPrev');
-  const nextBtn  = document.getElementById('lightboxNext');
-  const img      = document.getElementById('lightboxImg');
-  const caption  = document.getElementById('lightboxCaption');
+  const prevBtn = document.getElementById('lightboxPrev');
+  const nextBtn = document.getElementById('lightboxNext');
+  const img = document.getElementById('lightboxImg');
+  const caption = document.getElementById('lightboxCaption');
   const placeholder = document.getElementById('lightboxPlaceholder');
 
   let current = 0;
@@ -493,8 +493,8 @@ function initCarousel() {
 // GUESTBOOK / WISHES
 // ================================================================
 function initGuestbook() {
-  const form    = document.getElementById('wishForm');
-  const wall    = document.getElementById('wishesWall');
+  const form = document.getElementById('wishForm');
+  const wall = document.getElementById('wishesWall');
   const emojiPicker = document.getElementById('emojiPicker');
   let selectedEmoji = '🎂';
 
@@ -513,9 +513,9 @@ function initGuestbook() {
   // Form submission
   form.addEventListener('submit', (e) => {
     e.preventDefault();
-    const name     = document.getElementById('wishName').value.trim();
+    const name = document.getElementById('wishName').value.trim();
     const relation = document.getElementById('wishRelation').value;
-    const message  = document.getElementById('wishMessage').value.trim();
+    const message = document.getElementById('wishMessage').value.trim();
 
     if (!name || !message) return;
 
@@ -567,7 +567,7 @@ function escapeHTML(str) {
 function initMusicPlayer() {
   const player = document.getElementById('musicPlayer');
   const toggle = document.getElementById('musicToggle');
-  const icon   = toggle.querySelector('.music-icon');
+  const icon = toggle.querySelector('.music-icon');
   let isPlaying = false;
 
   // Create audio element (Happy Birthday melody — data URI workaround for demo)
@@ -664,7 +664,7 @@ window.addEventListener('scroll', () => {
 // SMOOTH ANCHOR SCROLLING WITH OFFSET FOR FIXED NAV
 // ================================================================
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-  anchor.addEventListener('click', function(e) {
+  anchor.addEventListener('click', function (e) {
     const target = document.querySelector(this.getAttribute('href'));
     if (!target) return;
     e.preventDefault();
