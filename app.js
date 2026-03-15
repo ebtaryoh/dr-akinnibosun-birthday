@@ -6,7 +6,7 @@
 
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
-import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, doc, updateDoc } from "firebase/firestore";
+import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, doc, updateDoc, getDocs, limit, startAfter } from "firebase/firestore";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -518,35 +518,78 @@ function initGuestbook() {
   const emojiPicker = document.getElementById('emojiPicker');
   let selectedEmoji = '🎂';
   let editingWishId = null;
+  let lastVisible = null;
+  const PAGE_SIZE = 5;
 
-  // Fetch wishes from Firestore
-  const q = query(collection(db, "wishes"), orderBy("timestamp", "desc"));
-  onSnapshot(q, {
-    next: (snapshot) => {
-      wall.innerHTML = '';
+  // Add "See More" button container
+  let seeMoreContainer = document.getElementById('seeMoreContainer');
+  if (!seeMoreContainer) {
+    seeMoreContainer = document.createElement('div');
+    seeMoreContainer.id = 'seeMoreContainer';
+    seeMoreContainer.className = 'see-more-container text-center mt-2';
+    seeMoreContainer.style.display = 'none';
+    seeMoreContainer.innerHTML = '<button id="seeMoreWishes" class="btn-outline">See More Wishes ⬇️</button>';
+    wall.after(seeMoreContainer);
+  }
+
+  const seeMoreBtn = document.getElementById('seeMoreWishes');
+
+  // Fetch initial wishes
+  loadWishes(true);
+
+  async function loadWishes(initial = false) {
+    try {
+      console.log("Loading wishes...", { initial, lastVisible });
+      let q;
+      if (initial) {
+        wall.innerHTML = '<div class="text-center section-sub">Loading wishes...</div>';
+        q = query(collection(db, "wishes"), orderBy("timestamp", "desc"), limit(PAGE_SIZE));
+        lastVisible = null;
+      } else {
+        if (!lastVisible) return;
+        seeMoreBtn.textContent = 'Loading...';
+        q = query(collection(db, "wishes"), orderBy("timestamp", "desc"), startAfter(lastVisible), limit(PAGE_SIZE));
+      }
+
+      const snapshot = await getDocs(q);
+      console.log("Wishes snapshot:", snapshot.size);
+      
+      if (initial) wall.innerHTML = '';
+      
+      if (snapshot.empty && initial) {
+        wall.innerHTML = '<div class="text-center section-sub">No wishes yet. Be the first to leave one!</div>';
+        seeMoreContainer.style.display = 'none';
+        return;
+      }
+
       snapshot.forEach((doc) => {
         addWishCard({ id: doc.id, ...doc.data() });
       });
-      if (snapshot.empty) {
-        wall.innerHTML = '<div class="text-center section-sub">No wishes yet. Be the first to leave one!</div>';
-      }
-    },
-    error: (error) => {
-      console.error("Firestore error: ", error);
-      wall.innerHTML = `<div class="text-center section-sub">Note: Wishes may not be loading correctly. Please check connection. Error: ${error.code}</div>`;
-      // Optionally fallback to seed wishes if Firestore fails
-      SEED_WISHES.forEach(w => addWishCard({ ...w, id: Math.random() }));
-    }
-  });
 
-  // Emoji picker
-  emojiPicker.querySelectorAll('.emoji-opt').forEach(opt => {
-    opt.addEventListener('click', () => {
-      emojiPicker.querySelectorAll('.emoji-opt').forEach(o => o.classList.remove('selected'));
-      opt.classList.add('selected');
-      selectedEmoji = opt.dataset.emoji;
-    });
-  });
+      lastVisible = snapshot.docs[snapshot.docs.length - 1];
+      
+      // Check if there are more
+      if (snapshot.docs.length < PAGE_SIZE) {
+        seeMoreContainer.style.display = 'none';
+      } else {
+        seeMoreContainer.style.display = 'block';
+        seeMoreBtn.textContent = 'See More Wishes ⬇️';
+      }
+
+    } catch (error) {
+      console.error("Firestore error in loadWishes: ", error);
+      if (initial) {
+        wall.innerHTML = `<div class="text-center section-sub" style="color: #ff4d4d">
+          Note: Wishes could not be loaded. Please ensure Firestore is enabled in your Firebase console and rules allow reading.<br>
+          <small>Error: ${error.message}</small>
+        </div>`;
+        SEED_WISHES.forEach(w => addWishCard({ ...w, id: Math.random() }));
+      }
+      seeMoreBtn.textContent = 'See More Wishes ⬇️';
+    }
+  }
+
+  seeMoreBtn.addEventListener('click', () => loadWishes(false));
 
   // Form submission
   form.addEventListener('submit', async (e) => {
@@ -558,10 +601,12 @@ function initGuestbook() {
 
     if (!name || !message) return;
 
+    const originalBtnText = submitBtn.textContent;
     submitBtn.disabled = true;
     submitBtn.textContent = 'Sending...';
 
     try {
+      console.log("Saving wish...", { name, editingWishId });
       if (editingWishId) {
         const wishDoc = doc(db, "wishes", editingWishId);
         await updateDoc(wishDoc, {
@@ -572,7 +617,6 @@ function initGuestbook() {
           updatedAt: serverTimestamp()
         });
         editingWishId = null;
-        submitBtn.textContent = 'Send My Wish 🎁';
       } else {
         await addDoc(collection(db, "wishes"), {
           name,
@@ -583,17 +627,26 @@ function initGuestbook() {
         });
       }
 
+      console.log("Wish saved successfully!");
+      submitBtn.textContent = originalBtnText;
       form.reset();
-      emojiPicker.querySelectorAll('.emoji-opt').forEach(o => o.classList.remove('selected'));
-      emojiPicker.querySelector('[data-emoji="🎂"]').classList.add('selected');
-      selectedEmoji = '🎂';
-      submitBtn.textContent = 'Send My Wish 🎁';
       
-      // Tiny celebration on new wish
-      if (!editingWishId) triggerMiniConfetti();
+      // Reset emoji picker
+      emojiPicker.querySelectorAll('.emoji-opt').forEach(o => o.classList.remove('selected'));
+      const defaultEmoji = emojiPicker.querySelector('[data-emoji="🎂"]');
+      if (defaultEmoji) defaultEmoji.classList.add('selected');
+      selectedEmoji = '🎂';
+      
+      submitBtn.textContent = 'Send My Wish 🎁';
+      triggerMiniConfetti();
+      
+      // Reload to show new/updated wish
+      loadWishes(true);
+      
     } catch (error) {
       console.error("Error saving wish: ", error);
-      alert("Something went wrong. Please try again.");
+      alert(`Could not save your wish: ${error.message}\n\nPlease check your Firestore rules and database status.`);
+      submitBtn.textContent = originalBtnText;
     } finally {
       submitBtn.disabled = false;
     }
@@ -603,24 +656,24 @@ function initGuestbook() {
     const card = document.createElement('div');
     card.className = 'wish-card';
     card.dataset.id = wish.id;
-    const initial = wish.name.charAt(0).toUpperCase();
+    const initial = (wish.name || "?").charAt(0).toUpperCase();
     
     let dateStr = 'Just now';
     if (wish.timestamp) {
       const date = wish.timestamp.toDate ? wish.timestamp.toDate() : new Date(wish.timestamp);
-      dateStr = date.toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' });
+      dateStr = isNaN(date.getTime()) ? 'Recently' : date.toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' });
     }
 
     card.innerHTML = `
       <div class="wish-card-header">
         <div class="wish-avatar">${initial}</div>
         <div class="wish-meta">
-          <div class="wish-name">${escapeHTML(wish.name)}</div>
-          <div class="wish-relation">${escapeHTML(wish.relation)} • ${dateStr}</div>
+          <div class="wish-name">${escapeHTML(wish.name || "Anonymous")}</div>
+          <div class="wish-relation">${escapeHTML(wish.relation || "Guest")} • ${dateStr}</div>
         </div>
-        <div class="wish-emoji">${wish.emoji}</div>
+        <div class="wish-emoji">${wish.emoji || "🎂"}</div>
       </div>
-      <div class="wish-message">"${escapeHTML(wish.message)}"</div>
+      <div class="wish-message">"${escapeHTML(wish.message || "")}"</div>
       <button class="btn-edit-wish" title="Edit your wish">Edit</button>
     `;
 

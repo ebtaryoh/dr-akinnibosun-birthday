@@ -1435,7 +1435,29 @@ section {
 
 .btn-edit-wish:hover {
   background: var(--gold);
-  color: var(--text-dark);
+  color: var(--dark);
+  transform: translateY(-2px);
+}
+
+.see-more-container {
+  margin-top: 2rem;
+  width: 100%;
+}
+
+.btn-outline {
+  /* Ensure btn-outline is defined and consistent */
+  background: transparent;
+  border: 1px solid var(--gold);
+  color: var(--gold);
+  padding: 0.8rem 1.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-outline:hover {
+  background: rgba(200, 169, 110, 0.1);
+  transform: translateY(-2px);
 }
 
 @keyframes wishSlide {
