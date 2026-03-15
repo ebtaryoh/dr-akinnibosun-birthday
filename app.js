@@ -136,8 +136,8 @@ function initParticles() {
       }
       ctx.restore();
     }
-  }
-
+  } 
+   
   function drawStar(ctx, cx, cy, spikes, outerR, innerR) {
     let rot = (Math.PI / 2) * 3;
     const step = Math.PI / spikes;
