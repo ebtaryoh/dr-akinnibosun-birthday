@@ -4,12 +4,32 @@
 
 'use strict';
 
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, doc, updateDoc } from "firebase/firestore";
+
+// Your web app's Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyBFYiVzI2yQiCqTsEUpoxCSKPRKCFAJcT8",
+  authDomain: "dr-akinnibosun-birthday.firebaseapp.com",
+  projectId: "dr-akinnibosun-birthday",
+  storageBucket: "dr-akinnibosun-birthday.firebasestorage.app",
+  messagingSenderId: "131919795347",
+  appId: "1:131919795347:web:1a6524309e8bf3d9842966",
+  measurementId: "G-66HYT3RB2E"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+const db = getFirestore(app);
+
 // ================================================================
 // CONFIGURATION
 // ================================================================
 const CONFIG = {
   // Next birthday: change this to the actual date if known
-  birthdayDate: new Date('2026-02-28T00:00:00'),
+  birthdayDate: new Date('2026-03-17T00:00:00'),
   candleCount: 6, // Display candles (simplified from 69)
 };
 
@@ -497,9 +517,27 @@ function initGuestbook() {
   const wall = document.getElementById('wishesWall');
   const emojiPicker = document.getElementById('emojiPicker');
   let selectedEmoji = '🎂';
+  let editingWishId = null;
 
-  // Seed wishes
-  SEED_WISHES.forEach(w => addWishCard(w));
+  // Fetch wishes from Firestore
+  const q = query(collection(db, "wishes"), orderBy("timestamp", "desc"));
+  onSnapshot(q, {
+    next: (snapshot) => {
+      wall.innerHTML = '';
+      snapshot.forEach((doc) => {
+        addWishCard({ id: doc.id, ...doc.data() });
+      });
+      if (snapshot.empty) {
+        wall.innerHTML = '<div class="text-center section-sub">No wishes yet. Be the first to leave one!</div>';
+      }
+    },
+    error: (error) => {
+      console.error("Firestore error: ", error);
+      wall.innerHTML = `<div class="text-center section-sub">Note: Wishes may not be loading correctly. Please check connection. Error: ${error.code}</div>`;
+      // Optionally fallback to seed wishes if Firestore fails
+      SEED_WISHES.forEach(w => addWishCard({ ...w, id: Math.random() }));
+    }
+  });
 
   // Emoji picker
   emojiPicker.querySelectorAll('.emoji-opt').forEach(opt => {
@@ -511,51 +549,104 @@ function initGuestbook() {
   });
 
   // Form submission
-  form.addEventListener('submit', (e) => {
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
     const name = document.getElementById('wishName').value.trim();
     const relation = document.getElementById('wishRelation').value;
     const message = document.getElementById('wishMessage').value.trim();
+    const submitBtn = document.getElementById('submitWish');
 
     if (!name || !message) return;
 
-    const wish = { name, relation, message, emoji: selectedEmoji };
-    addWishCard(wish, true);
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Sending...';
 
-    form.reset();
-    emojiPicker.querySelectorAll('.emoji-opt').forEach(o => o.classList.remove('selected'));
-    emojiPicker.querySelector('[data-emoji="🎂"]').classList.add('selected');
-    selectedEmoji = '🎂';
+    try {
+      if (editingWishId) {
+        const wishDoc = doc(db, "wishes", editingWishId);
+        await updateDoc(wishDoc, {
+          name,
+          relation,
+          message,
+          emoji: selectedEmoji,
+          updatedAt: serverTimestamp()
+        });
+        editingWishId = null;
+        submitBtn.textContent = 'Send My Wish 🎁';
+      } else {
+        await addDoc(collection(db, "wishes"), {
+          name,
+          relation,
+          message,
+          emoji: selectedEmoji,
+          timestamp: serverTimestamp()
+        });
+      }
 
-    // Tiny celebration
-    triggerMiniConfetti();
+      form.reset();
+      emojiPicker.querySelectorAll('.emoji-opt').forEach(o => o.classList.remove('selected'));
+      emojiPicker.querySelector('[data-emoji="🎂"]').classList.add('selected');
+      selectedEmoji = '🎂';
+      submitBtn.textContent = 'Send My Wish 🎁';
+      
+      // Tiny celebration on new wish
+      if (!editingWishId) triggerMiniConfetti();
+    } catch (error) {
+      console.error("Error saving wish: ", error);
+      alert("Something went wrong. Please try again.");
+    } finally {
+      submitBtn.disabled = false;
+    }
   });
 
-  function addWishCard(wish, prepend = false) {
+  function addWishCard(wish) {
     const card = document.createElement('div');
     card.className = 'wish-card';
+    card.dataset.id = wish.id;
     const initial = wish.name.charAt(0).toUpperCase();
+    
+    let dateStr = 'Just now';
+    if (wish.timestamp) {
+      const date = wish.timestamp.toDate ? wish.timestamp.toDate() : new Date(wish.timestamp);
+      dateStr = date.toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' });
+    }
+
     card.innerHTML = `
       <div class="wish-card-header">
         <div class="wish-avatar">${initial}</div>
         <div class="wish-meta">
           <div class="wish-name">${escapeHTML(wish.name)}</div>
-          <div class="wish-relation">${escapeHTML(wish.relation)}</div>
+          <div class="wish-relation">${escapeHTML(wish.relation)} • ${dateStr}</div>
         </div>
         <div class="wish-emoji">${wish.emoji}</div>
       </div>
       <div class="wish-message">"${escapeHTML(wish.message)}"</div>
+      <button class="btn-edit-wish" title="Edit your wish">Edit</button>
     `;
-    if (prepend && wall.firstChild) {
-      wall.insertBefore(card, wall.firstChild);
-    } else {
-      wall.appendChild(card);
-    }
-    setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100);
+
+    const editBtn = card.querySelector('.btn-edit-wish');
+    editBtn.addEventListener('click', () => {
+      document.getElementById('wishName').value = wish.name;
+      document.getElementById('wishRelation').value = wish.relation;
+      document.getElementById('wishMessage').value = wish.message;
+      
+      // Select emoji
+      emojiPicker.querySelectorAll('.emoji-opt').forEach(o => {
+        o.classList.toggle('selected', o.dataset.emoji === wish.emoji);
+      });
+      selectedEmoji = wish.emoji;
+      
+      editingWishId = wish.id;
+      document.getElementById('submitWish').textContent = 'Update My Wish ✨';
+      document.getElementById('wishes').scrollIntoView({ behavior: 'smooth' });
+    });
+
+    wall.appendChild(card);
   }
 }
 
 function escapeHTML(str) {
+  if (!str) return '';
   const d = document.createElement('div');
   d.textContent = str;
   return d.innerHTML;

@@ -1402,8 +1402,40 @@ section {
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(200, 169, 110, 0.12);
   border-radius: var(--radius-md);
-  padding: 20px;
+  padding: 24px;
   animation: wishSlide 0.4s ease;
+  position: relative;
+  transition: transform var(--transition), border-color var(--transition);
+}
+
+.wish-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(200, 169, 110, 0.3);
+}
+
+.btn-edit-wish {
+  position: absolute;
+  top: 24px;
+  right: 60px;
+  background: rgba(200, 169, 110, 0.1);
+  border: 1px solid rgba(200, 169, 110, 0.3);
+  color: var(--gold-light);
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  cursor: pointer;
+  transition: all var(--transition);
+  opacity: 0.5;
+  font-family: var(--font-sans);
+}
+
+.wish-card:hover .btn-edit-wish {
+  opacity: 1;
+}
+
+.btn-edit-wish:hover {
+  background: var(--gold);
+  color: var(--text-dark);
 }
 
 @keyframes wishSlide {
