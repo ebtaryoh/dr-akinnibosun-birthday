@@ -10,13 +10,13 @@ import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTim
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyBFYiVzI2yQiCqTsEUpoxCSKPRKCFAJcT8",
-  authDomain: "dr-akinnibosun-birthday.firebaseapp.com",
-  projectId: "dr-akinnibosun-birthday",
-  storageBucket: "dr-akinnibosun-birthday.firebasestorage.app",
-  messagingSenderId: "131919795347",
-  appId: "1:131919795347:web:1a6524309e8bf3d9842966",
-  measurementId: "G-66HYT3RB2E"
+  apiKey: "AIzaSyAGKxX5sEcyjkOTq9lsrSnoErA01oz0AGY",
+  authDomain: "daddy-birthday.firebaseapp.com",
+  projectId: "daddy-birthday",
+  storageBucket: "daddy-birthday.firebasestorage.app",
+  messagingSenderId: "302454431091",
+  appId: "1:302454431091:web:c2afecac8297ec9b073906",
+  measurementId: "G-E84NV73NMR"
 };
 
 // Initialize Firebase
