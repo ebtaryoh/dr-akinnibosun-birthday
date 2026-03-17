@@ -1,5 +1,5 @@
 /* ================================================================
-   69 & GLORIOUS — Birthday Celebration App JS
+   A LEGACY OF GRACE — Birthday Celebration App JS
    ================================================================ */
 
 'use strict';
@@ -30,7 +30,7 @@ const db = getFirestore(app);
 const CONFIG = {
   // Next birthday: change this to the actual date if known
   birthdayDate: new Date('2026-03-17T00:00:00'),
-  candleCount: 6, // Display candles (simplified from 69)
+  candleCount: 8, // Standard decorative count
 };
 
 // Gallery data
@@ -42,15 +42,15 @@ const GALLERY_ITEMS = [
   { id: 5, category: 'family', src: 'images/celebrant_wife_2.jpeg', caption: 'Cherished Bonds', bg: 'linear-gradient(135deg, #1a1a10, #3a3515)' },
   { id: 6, category: 'memories', src: 'images/memories_2.jpeg', caption: 'Golden Sunrises', bg: 'linear-gradient(135deg, #1a0f05, #3a2010)' },
   { id: 7, category: 'family', src: 'images/celebrant_wife_3.jpeg', caption: 'Together Through Everything', bg: 'linear-gradient(135deg, #101a1a, #153a35)' },
-  { id: 8, category: 'milestones', emoji: '✨', caption: '69 Glorious Years', bg: 'linear-gradient(135deg, #1a1510, #3a2c15)' },
+  { id: 8, category: 'milestones', emoji: '✨', caption: 'A Magnificent Legacy', bg: 'linear-gradient(135deg, #1a1510, #3a2c15)' },
   { id: 9, category: 'memories', emoji: '🎵', caption: 'Songs of a Lifetime', bg: 'linear-gradient(135deg, #0f1520, #1a2a40)' },
 ];
 
 // Seed wishes
 const SEED_WISHES = [
-  { name: 'Adaeze Emmanuel', relation: 'Family', message: 'Mama, you are the glue that holds us all together. Your love is our greatest inheritance. Happy 69th!', emoji: '❤️' },
+  { name: 'Adaeze Emmanuel', relation: 'Family', message: 'Mama, you are the glue that holds us all together. Your love is our greatest inheritance. We love you!', emoji: '❤️' },
   { name: 'The Grandchildren', relation: 'Family', message: 'Grandma, every memory with you is our favourite memory. Thank you for being our safe place always. 🎂', emoji: '🎂' },
-  { name: 'Chioma Okafor', relation: 'Friend', message: 'Six decades and then some of being the most remarkable woman I know. Here\'s to many more golden years!', emoji: '🥂' },
+  { name: 'Chioma Okafor', relation: 'Friend', message: 'Decades of being the most remarkable woman I know. Here\'s to many more golden moments!', emoji: '🥂' },
 ];
 
 // ================================================================
