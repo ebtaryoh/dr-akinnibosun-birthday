@@ -892,12 +892,8 @@ function initFamilyTributes() {
   });
 
   video.addEventListener('ended', () => {
-    if (currentIndex < FAMILY_VIDEOS.length - 1) {
-      switchVideo(currentIndex + 1);
-    } else {
-      playPauseBtn.textContent = '▶';
-      wrapper.classList.add('paused');
-    }
+    // Always go to the next video, looping back to 0 if at the end
+    switchVideo((currentIndex + 1) % FAMILY_VIDEOS.length);
   });
 
   progressWrap.addEventListener('click', (e) => {
