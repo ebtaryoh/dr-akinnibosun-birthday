@@ -40,6 +40,7 @@
         <li><a href="#about">About</a></li>
         <li><a href="#timeline">Journey</a></li>
         <li><a href="#gallery">Gallery</a></li>
+        <li><a href="#family-tributes">Family Story</a></li>
         <li><a href="#tributes">Tributes</a></li>
         <li><a href="#wishes">Wishes</a></li>
       </ul>
@@ -294,6 +295,36 @@
       <!-- Gallery cards injected by JS -->
     </div>
   </section>
+
+  <!-- ========== FAMILY TRIBUTES SECTION ========== -->
+  <section id="family-tributes">
+    <div class="section-label reveal">The Family Story</div>
+    <h2 class="section-heading text-center reveal">Tributes from<br /><em>The Inner Circle</em></h2>
+    <p class="section-sub text-center reveal">A chronological journey through the hearts of those who know him best.</p>
+    
+    <div class="family-video-container reveal">
+      <div class="video-player-wrapper">
+        <video id="familyVideoPlayer" playsinline>
+          <source src="" type="video/mp4">
+          Your browser does not support the video tag.
+        </video>
+        <div class="video-overlay" id="videoOverlay">
+          <div class="play-btn-large">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+          </div>
+        </div>
+        <div class="video-controls-custom">
+          <div class="video-btn" id="videoPrev">⏮</div>
+          <div class="video-btn" id="videoPlayPause">▶</div>
+          <div class="video-btn" id="videoNext">⏭</div>
+          <div class="video-progress-wrap">
+            <div class="video-progress-bar" id="videoProgress"></div>
+          </div>
+          <div class="video-time" id="videoTime">0:00 / 0:00</div>
+          <div class="video-btn" id="videoMute">🔊</div>
+        </div>
+      </div>
+    </div>
 
   <!-- ========== TRIBUTES SECTION ========== -->
   <section id="tributes">

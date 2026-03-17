@@ -71,6 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initLightbox();
   initBackToTop();
   initConfetti();
+  initFamilyTributes();
 });
 
 // ================================================================
@@ -794,14 +795,127 @@ function triggerMiniConfetti() {
 }
 
 // ================================================================
+// FAMILY TRIBUTES LOGIC
+// ================================================================
+const FAMILY_VIDEOS = [
+  { id: 'gc1', name: 'Grandchildren', relation: 'First in our hearts', emoji: '👶', src: 'videos/family/grandchildren_one.mp4' },
+  { id: 'gc2', name: 'Grandchildren', relation: 'Purest Love', emoji: '👦', src: 'videos/family/grandchildren_two.mp4' },
+  { id: 'son1', name: 'First Son', relation: 'The First Strength', emoji: '👨‍💼', src: 'videos/family/first_son.mp4' },
+  { id: 'son2', name: 'Second Son', relation: 'The Pillar', emoji: '👨‍🔬', src: 'videos/family/second_son.mp4' },
+  { id: 'daughter', name: 'Daughter', relation: 'The Joy', emoji: '👩‍⚕️', src: 'videos/family/daughter.mp4' },
+  { id: 'friend', name: 'Daughter\'s Friend', relation: 'Family by Choice', emoji: '🤝', src: 'videos/family/daughter_friend.mp4' },
+  { id: 'son3', name: 'Third Son', relation: 'The Visionary', emoji: '👨‍🎨', src: 'videos/family/third_son.mp4' },
+  { id: 'son4', name: 'Fourth Son', relation: 'The Promise', emoji: '👨‍🚀', src: 'videos/family/fourth_son.mp4' },
+  { id: 'wife', name: 'The Wife', relation: 'The Queen • Forever', emoji: '👸', src: 'videos/family/wife.mp4' },
+];
+
+function initFamilyTributes() {
+  const video = document.getElementById('familyVideoPlayer');
+  const playPauseBtn = document.getElementById('videoPlayPause');
+  const prevBtn = document.getElementById('videoPrev');
+  const nextBtn = document.getElementById('videoNext');
+  const progressLine = document.getElementById('videoProgress');
+  const progressWrap = document.querySelector('.video-progress-wrap');
+  const timeDisplay = document.getElementById('videoTime');
+  const muteBtn = document.getElementById('videoMute');
+  const wrapper = document.querySelector('.video-player-wrapper');
+  const overlay = document.getElementById('videoOverlay');
+  
+  let currentIndex = 0;
+
+  function switchVideo(index) {
+    if (index < 0 || index >= FAMILY_VIDEOS.length) return;
+    
+    currentIndex = index;
+    const item = FAMILY_VIDEOS[currentIndex];
+
+    wrapper.classList.add('switching');
+    launchConfetti(40); // Add celebratory confetti
+
+    video.src = item.src;
+    video.play().then(() => {
+      playPauseBtn.textContent = '⏸';
+      wrapper.classList.remove('paused');
+    }).catch(() => {
+      playPauseBtn.textContent = '▶';
+      wrapper.classList.add('paused');
+    });
+
+    setTimeout(() => {
+      wrapper.classList.remove('switching');
+    }, 2000);
+  }
+
+  // Initial Load (without auto-play to respect browser policies)
+  const firstVideo = FAMILY_VIDEOS[0];
+  video.src = firstVideo.src;
+
+  // Controls
+  playPauseBtn.addEventListener('click', togglePlay);
+  overlay.addEventListener('click', togglePlay);
+
+  function togglePlay() {
+    if (video.paused) {
+      video.play();
+      playPauseBtn.textContent = '⏸';
+      wrapper.classList.remove('paused');
+    } else {
+      video.pause();
+      playPauseBtn.textContent = '▶';
+      wrapper.classList.add('paused');
+    }
+  }
+
+  nextBtn.addEventListener('click', () => {
+    switchVideo((currentIndex + 1) % FAMILY_VIDEOS.length);
+  });
+
+  prevBtn.addEventListener('click', () => {
+    switchVideo((currentIndex - 1 + FAMILY_VIDEOS.length) % FAMILY_VIDEOS.length);
+  });
+
+  video.addEventListener('timeupdate', () => {
+    const progress = (video.currentTime / video.duration) * 100;
+    progressLine.style.width = `${progress}%`;
+    timeDisplay.textContent = `${formatTime(video.currentTime)} / ${formatTime(video.duration)}`;
+  });
+
+  video.addEventListener('ended', () => {
+    if (currentIndex < FAMILY_VIDEOS.length - 1) {
+      switchVideo(currentIndex + 1);
+    } else {
+      playPauseBtn.textContent = '▶';
+      wrapper.classList.add('paused');
+    }
+  });
+
+  progressWrap.addEventListener('click', (e) => {
+    const rect = progressWrap.getBoundingClientRect();
+    const pos = (e.clientX - rect.left) / rect.width;
+    video.currentTime = pos * video.duration;
+  });
+
+  muteBtn.addEventListener('click', () => {
+    video.muted = !video.muted;
+    muteBtn.textContent = video.muted ? '🔇' : '🔊';
+  });
+
+  function formatTime(seconds) {
+    if (isNaN(seconds)) return '0:00';
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  }
+}
+
+// ================================================================
 // PARALLAX HERO BG NUMBER
 // ================================================================
 window.addEventListener('scroll', () => {
   const bgNum = document.querySelector('.hero-bg-number');
-  if (bgNum) {
-    const scroll = window.scrollY;
-    bgNum.style.transform = `translate(-50%, calc(-50% + ${scroll * 0.3}px))`;
-  }
+  if (!bgNum) return;
+  const val = window.scrollY * 0.4;
+  bgNum.style.transform = `translate(-50%, calc(-50% + ${val}px))`;
 });
 
 // ================================================================
