@@ -28,8 +28,13 @@ const db = getFirestore(app);
 // CONFIGURATION
 // ================================================================
 const CONFIG = {
-  // Next birthday: change this to the actual date if known
-  birthdayDate: new Date('2026-03-17T00:00:00'),
+  // Next birthday: dynamically calculated to stay timeless
+  birthdayDate: (() => {
+    const now = new Date();
+    const date = new Date(now.getFullYear(), 2, 17); // March 17
+    if (date < now) date.setFullYear(now.getFullYear() + 1);
+    return date;
+  })(),
   candleCount: 8, // Standard decorative count
 };
 
@@ -230,6 +235,7 @@ function initHeroCountdown() {
   const minsEl = document.getElementById('cd-mins');
   const secsEl = document.getElementById('cd-secs');
   const countdownEl = document.getElementById('heroCountdown');
+  if (!countdownEl) return;
 
   function update() {
     const now = new Date();

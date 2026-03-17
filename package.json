@@ -1,7 +1,7 @@
 {
   "name": "birthday-celebration",
   "version": "1.0.0",
-  "description": "69th Birthday Celebration Website",
+  "description": "A Legacy of Grace - Celebration Website",
   "main": "index.html",
   "scripts": {
     "dev": "vite",
