@@ -281,8 +281,8 @@ function initRevealAnimations() {
 // ================================================================
 // STAT COUNTERS
 // ================================================================
-function initStatCounters() {
-  const numbers = document.querySelectorAll('.stat-number[data-target]');
+function initStatCounters() { // Generic stat counter logic
+  const stats = document.querySelectorAll('.stat-number');
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
