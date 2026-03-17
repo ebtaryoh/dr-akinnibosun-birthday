@@ -524,80 +524,64 @@ function initGuestbook() {
   const form = document.getElementById('wishForm');
   const wall = document.getElementById('wishesWall');
   const emojiPicker = document.getElementById('emojiPicker');
+  const submitBtn = document.getElementById('submitWish');
   let selectedEmoji = '🎂';
   let editingWishId = null;
-  let lastVisible = null;
-  const PAGE_SIZE = 5;
 
-  // Add "See More" button container
-  let seeMoreContainer = document.getElementById('seeMoreContainer');
-  if (!seeMoreContainer) {
-    seeMoreContainer = document.createElement('div');
-    seeMoreContainer.id = 'seeMoreContainer';
-    seeMoreContainer.className = 'see-more-container text-center mt-2';
-    seeMoreContainer.style.display = 'none';
-    seeMoreContainer.innerHTML = '<button id="seeMoreWishes" class="btn-outline">See More Wishes ⬇️</button>';
-    wall.after(seeMoreContainer);
-  }
+  // Local Storage Key
+  const L_STORAGE_KEY = 'birthday_wishes_backup';
 
-  const seeMoreBtn = document.getElementById('seeMoreWishes');
+  // Load from local storage first (Fallback)
+  renderLocalBackup();
 
-  // Fetch initial wishes
-  loadWishes(true);
+  // Setup Real-time Firestore Listener
+  const q = query(collection(db, "wishes"), orderBy("timestamp", "desc"), limit(50));
+  
+  onSnapshot(q, (snapshot) => {
+    const wishes = [];
+    snapshot.forEach((doc) => {
+      wishes.push({ id: doc.id, ...doc.data() });
+    });
+    
+    console.log("Real-time update: Received", wishes.length, "wishes");
+    
+    // Sanitize timestamps for storage
+    const wishesToStore = wishes.map(w => ({
+      ...w,
+      timestamp: w.timestamp?.toDate ? w.timestamp.toDate().toISOString() : w.timestamp
+    }));
+    
+    localStorage.setItem(L_STORAGE_KEY, JSON.stringify(wishesToStore));
+    renderWishes(wishes);
+  }, (error) => {
+    console.error("Firestore Listener Error:", error);
+    // If listener fails, we already rendered from local backup
+  });
 
-  async function loadWishes(initial = false) {
-    try {
-      console.log("Loading wishes...", { initial, lastVisible });
-      let q;
-      if (initial) {
-        wall.innerHTML = '<div class="text-center section-sub">Loading wishes...</div>';
-        q = query(collection(db, "wishes"), orderBy("timestamp", "desc"), limit(PAGE_SIZE));
-        lastVisible = null;
-      } else {
-        if (!lastVisible) return;
-        seeMoreBtn.textContent = 'Loading...';
-        q = query(collection(db, "wishes"), orderBy("timestamp", "desc"), startAfter(lastVisible), limit(PAGE_SIZE));
+  function renderLocalBackup() {
+    const backup = localStorage.getItem(L_STORAGE_KEY);
+    if (backup) {
+      try {
+        const wishes = JSON.parse(backup);
+        console.log("Loaded from LocalStorage backup:", wishes.length);
+        renderWishes(wishes);
+      } catch (e) {
+        console.error("Error parsing local backup", e);
       }
-
-      const snapshot = await getDocs(q);
-      console.log("Wishes snapshot:", snapshot.size);
-      
-      if (initial) wall.innerHTML = '';
-      
-      if (snapshot.empty && initial) {
-        wall.innerHTML = '<div class="text-center section-sub">No wishes yet. Be the first to leave one!</div>';
-        seeMoreContainer.style.display = 'none';
-        return;
-      }
-
-      snapshot.forEach((doc) => {
-        addWishCard({ id: doc.id, ...doc.data() });
-      });
-
-      lastVisible = snapshot.docs[snapshot.docs.length - 1];
-      
-      // Check if there are more
-      if (snapshot.docs.length < PAGE_SIZE) {
-        seeMoreContainer.style.display = 'none';
-      } else {
-        seeMoreContainer.style.display = 'block';
-        seeMoreBtn.textContent = 'See More Wishes ⬇️';
-      }
-
-    } catch (error) {
-      console.error("Firestore error in loadWishes: ", error);
-      if (initial) {
-        wall.innerHTML = `<div class="text-center section-sub" style="color: #ff4d4d">
-          Note: Wishes could not be loaded. Please ensure Firestore is enabled in your Firebase console and rules allow reading.<br>
-          <small>Error: ${error.message}</small>
-        </div>`;
-        SEED_WISHES.forEach(w => addWishCard({ ...w, id: Math.random() }));
-      }
-      seeMoreBtn.textContent = 'See More Wishes ⬇️';
+    } else {
+      // Use Seed Wishes if nothing exists
+      renderWishes(SEED_WISHES.map(w => ({ ...w, id: 'seed-' + Math.random() })));
     }
   }
 
-  seeMoreBtn.addEventListener('click', () => loadWishes(false));
+  function renderWishes(wishes) {
+    wall.innerHTML = '';
+    if (wishes.length === 0) {
+      wall.innerHTML = '<div class="text-center section-sub">No wishes yet. Be the first to leave one!</div>';
+      return;
+    }
+    wishes.forEach(addWishCard);
+  }
 
   // Form submission
   form.addEventListener('submit', async (e) => {
@@ -605,7 +589,6 @@ function initGuestbook() {
     const name = document.getElementById('wishName').value.trim();
     const relation = document.getElementById('wishRelation').value;
     const message = document.getElementById('wishMessage').value.trim();
-    const submitBtn = document.getElementById('submitWish');
 
     if (!name || !message) return;
 
@@ -614,7 +597,6 @@ function initGuestbook() {
     submitBtn.textContent = 'Sending...';
 
     try {
-      console.log("Saving wish...", { name, editingWishId });
       if (editingWishId) {
         const wishDoc = doc(db, "wishes", editingWishId);
         await updateDoc(wishDoc, {
@@ -635,30 +617,26 @@ function initGuestbook() {
         });
       }
 
-      console.log("Wish saved successfully!");
-      submitBtn.textContent = originalBtnText;
       form.reset();
-      
-      // Reset emoji picker
-      emojiPicker.querySelectorAll('.emoji-opt').forEach(o => o.classList.remove('selected'));
-      const defaultEmoji = emojiPicker.querySelector('[data-emoji="🎂"]');
-      if (defaultEmoji) defaultEmoji.classList.add('selected');
-      selectedEmoji = '🎂';
-      
+      resetEmojiPicker();
       submitBtn.textContent = 'Send My Wish 🎁';
       triggerMiniConfetti();
       
-      // Reload to show new/updated wish
-      loadWishes(true);
-      
     } catch (error) {
-      console.error("Error saving wish: ", error);
-      alert(`Could not save your wish: ${error.message}\n\nPlease check your Firestore rules and database status.`);
+      console.error("Error saving wish:", error);
+      alert(`Could not save your wish: ${error.message}\n\nPlease check your Firestore rules.`);
       submitBtn.textContent = originalBtnText;
     } finally {
       submitBtn.disabled = false;
     }
   });
+
+  function resetEmojiPicker() {
+    emojiPicker.querySelectorAll('.emoji-opt').forEach(o => o.classList.remove('selected'));
+    const defaultEmoji = emojiPicker.querySelector('[data-emoji="🎂"]');
+    if (defaultEmoji) defaultEmoji.classList.add('selected');
+    selectedEmoji = '🎂';
+  }
 
   function addWishCard(wish) {
     const card = document.createElement('div');
@@ -685,20 +663,18 @@ function initGuestbook() {
       <button class="btn-edit-wish" title="Edit your wish">Edit</button>
     `;
 
-    const editBtn = card.querySelector('.btn-edit-wish');
-    editBtn.addEventListener('click', () => {
+    card.querySelector('.btn-edit-wish').addEventListener('click', () => {
       document.getElementById('wishName').value = wish.name;
       document.getElementById('wishRelation').value = wish.relation;
       document.getElementById('wishMessage').value = wish.message;
       
-      // Select emoji
       emojiPicker.querySelectorAll('.emoji-opt').forEach(o => {
         o.classList.toggle('selected', o.dataset.emoji === wish.emoji);
       });
       selectedEmoji = wish.emoji;
       
       editingWishId = wish.id;
-      document.getElementById('submitWish').textContent = 'Update My Wish ✨';
+      submitBtn.textContent = 'Update My Wish ✨';
       document.getElementById('wishes').scrollIntoView({ behavior: 'smooth' });
     });
 
