@@ -35,13 +35,13 @@ const CONFIG = {
 
 // Gallery data
 const GALLERY_ITEMS = [
-  { id: 1, category: 'family', emoji: '👨‍👩‍👧‍👦', caption: 'A Legacy of Family Love', bg: 'linear-gradient(135deg, #2c1810, #5a3020)' },
-  { id: 2, category: 'milestones', emoji: '🎓', caption: 'Years of Achievement', bg: 'linear-gradient(135deg, #1a1530, #3a2060)' },
-  { id: 3, category: 'memories', emoji: '🌸', caption: 'Springtime Memories', bg: 'linear-gradient(135deg, #1a1025, #3a1545)' },
-  { id: 4, category: 'family', emoji: '❤️', caption: 'Love in Every Moment', bg: 'linear-gradient(135deg, #2a1015, #602030)' },
-  { id: 5, category: 'milestones', emoji: '🏆', caption: 'Celebrating Every Win', bg: 'linear-gradient(135deg, #1a1a10, #3a3515)' },
-  { id: 6, category: 'memories', emoji: '🌅', caption: 'Golden Sunrises', bg: 'linear-gradient(135deg, #1a0f05, #3a2010)' },
-  { id: 7, category: 'family', emoji: '🤝', caption: 'Together Through Everything', bg: 'linear-gradient(135deg, #101a1a, #153a35)' },
+  { id: 1, category: 'family', src: 'images/family_with_children.jpeg', caption: 'A Legacy of Family Love', bg: 'linear-gradient(135deg, #2c1810, #5a3020)' },
+  { id: 2, category: 'milestones', src: 'images/celebrant_main.jpeg', caption: 'Years of Achievement', bg: 'linear-gradient(135deg, #1a1530, #3a2060)' },
+  { id: 3, category: 'memories', src: 'images/memories_1.jpeg', caption: 'Springtime Memories', bg: 'linear-gradient(135deg, #1a1025, #3a1545)' },
+  { id: 4, category: 'family', src: 'images/celebrant_wife_1.jpeg', caption: 'Love in Every Moment', bg: 'linear-gradient(135deg, #2a1015, #602030)' },
+  { id: 5, category: 'family', src: 'images/celebrant_wife_2.jpeg', caption: 'Cherished Bonds', bg: 'linear-gradient(135deg, #1a1a10, #3a3515)' },
+  { id: 6, category: 'memories', src: 'images/memories_2.jpeg', caption: 'Golden Sunrises', bg: 'linear-gradient(135deg, #1a0f05, #3a2010)' },
+  { id: 7, category: 'family', src: 'images/celebrant_wife_3.jpeg', caption: 'Together Through Everything', bg: 'linear-gradient(135deg, #101a1a, #153a35)' },
   { id: 8, category: 'milestones', emoji: '✨', caption: '69 Glorious Years', bg: 'linear-gradient(135deg, #1a1510, #3a2c15)' },
   { id: 9, category: 'memories', emoji: '🎵', caption: 'Songs of a Lifetime', bg: 'linear-gradient(135deg, #0f1520, #1a2a40)' },
 ];
@@ -380,10 +380,11 @@ function initGallery() {
     card.dataset.category = item.category;
     card.innerHTML = `
       <div class="gallery-card-inner" style="background: ${item.bg};">
+        ${item.src ? `<img src="${item.src}" alt="${item.caption}" class="gallery-img">` : `
         <div class="gallery-placeholder">
           <span class="gallery-icon">${item.emoji}</span>
           <p>${item.caption}</p>
-        </div>
+        </div>`}
       </div>
       <div class="gallery-overlay">
         <div class="gallery-caption">${item.caption}</div>
@@ -440,9 +441,15 @@ function initLightbox() {
     const items = window._galleryItems || [];
     const item = items[idx];
     if (!item) return;
-    img.style.display = 'none';
-    placeholder.style.display = 'flex';
-    placeholder.innerHTML = `<span>${item.emoji}</span><p>${item.caption}</p>`;
+    if (item.src) {
+      img.src = item.src;
+      img.style.display = 'block';
+      placeholder.style.display = 'none';
+    } else {
+      img.style.display = 'none';
+      placeholder.style.display = 'flex';
+      placeholder.innerHTML = `<span>${item.emoji}</span><p>${item.caption}</p>`;
+    }
     caption.textContent = item.caption;
   }
 

@@ -1086,7 +1086,6 @@ section {
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(200, 169, 110, 0.1);
   transition: transform var(--transition), box-shadow var(--transition);
-  group: true;
 }
 
 .gallery-card:hover {
@@ -1099,6 +1098,7 @@ section {
 }
 
 .gallery-card-inner {
+  position: relative;
   width: 100%;
   height: 100%;
   display: flex;
@@ -1107,6 +1107,7 @@ section {
   flex-direction: column;
   padding: 24px;
   text-align: center;
+  overflow: hidden;
 }
 
 .gallery-img {
@@ -1116,6 +1117,11 @@ section {
   position: absolute;
   top: 0;
   left: 0;
+  transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.gallery-card:hover .gallery-img {
+  transform: scale(1.1);
 }
 
 .gallery-placeholder {
@@ -1995,9 +2001,20 @@ section {
   cursor: pointer;
 }
 
-.video-player-wrapper:hover .video-overlay,
 .video-player-wrapper.paused .video-overlay {
   opacity: 1;
+}
+
+/* Hide play button when playing, only show on hover + pause or just pause */
+.video-player-wrapper:not(.paused) .video-overlay {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.video-player-wrapper:not(.paused):hover .video-overlay {
+  opacity: 1;
+  pointer-events: auto;
+  background: rgba(0, 0, 0, 0.2);
 }
 
 .play-btn-large {
