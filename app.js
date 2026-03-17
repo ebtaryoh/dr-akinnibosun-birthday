@@ -799,15 +799,15 @@ function triggerMiniConfetti() {
 // FAMILY TRIBUTES LOGIC
 // ================================================================
 const FAMILY_VIDEOS = [
-  { id: 'gc1', name: 'Grandchildren', relation: 'First in our hearts', emoji: '👶', src: 'videos/family/grandchildren_one.mp4' },
-  { id: 'gc2', name: 'Grandchildren', relation: 'Purest Love', emoji: '👦', src: 'videos/family/grandchildren_two.mp4' },
-  { id: 'son1', name: 'First Son', relation: 'The First Strength', emoji: '👨‍💼', src: 'videos/family/first_son.mp4' },
-  { id: 'son2', name: 'Second Son', relation: 'The Pillar', emoji: '👨‍🔬', src: 'videos/family/second_son.mp4' },
-  { id: 'daughter', name: 'Daughter', relation: 'The Joy', emoji: '👩‍⚕️', src: 'videos/family/daughter.mp4' },
-  { id: 'friend', name: 'Daughter\'s Friend', relation: 'Family by Choice', emoji: '🤝', src: 'videos/family/daughter_friend.mp4' },
-  { id: 'son3', name: 'Third Son', relation: 'The Visionary', emoji: '👨‍🎨', src: 'videos/family/third_son.mp4' },
-  { id: 'son4', name: 'Fourth Son', relation: 'The Promise', emoji: '👨‍🚀', src: 'videos/family/fourth_son.mp4' },
-  { id: 'wife', name: 'The Wife', relation: 'The Queen • Forever', emoji: '👸', src: 'videos/family/wife.mp4' },
+  { id: 'gc1', name: 'Grandchildren', relation: 'First in our hearts', emoji: '👶', src: '/videos/family/grandchildren_one.mp4' },
+  { id: 'gc2', name: 'Grandchildren', relation: 'Purest Love', emoji: '👦', src: '/videos/family/grandchildren_two.mp4' },
+  { id: 'son1', name: 'First Son', relation: 'The First Strength', emoji: '👨‍💼', src: '/videos/family/first_son.mp4' },
+  { id: 'son2', name: 'Second Son', relation: 'The Pillar', emoji: '👨‍🔬', src: '/videos/family/second_son.mp4' },
+  { id: 'daughter', name: 'Daughter', relation: 'The Joy', emoji: '👩‍⚕️', src: '/videos/family/daughter.mp4' },
+  { id: 'friend', name: 'Daughter\'s Friend', relation: 'Family by Choice', emoji: '🤝', src: '/videos/family/daughter_friend.mp4' },
+  { id: 'son3', name: 'Third Son', relation: 'The Visionary', emoji: '👨‍🎨', src: '/videos/family/third_son.mp4' },
+  { id: 'son4', name: 'Fourth Son', relation: 'The Promise', emoji: '👨‍🚀', src: '/videos/family/fourth_son.mp4' },
+  { id: 'wife', name: 'The Wife', relation: 'The Queen • Forever', emoji: '👸', src: '/videos/family/wife.mp4' },
 ];
 
 function initFamilyTributes() {
@@ -847,9 +847,19 @@ function initFamilyTributes() {
     }, 2000);
   }
 
-  // Initial Load (without auto-play to respect browser policies)
+  // Initial Load (with auto-play enabled in HTML)
   const firstVideo = FAMILY_VIDEOS[0];
   video.src = firstVideo.src;
+  
+  // Try to sync UI with autoplay state
+  video.play().then(() => {
+    playPauseBtn.textContent = '⏸';
+    wrapper.classList.remove('paused');
+  }).catch(() => {
+    // If blocked, keep as play icon
+    playPauseBtn.textContent = '▶';
+    wrapper.classList.add('paused');
+  });
 
   // Controls
   playPauseBtn.addEventListener('click', togglePlay);
