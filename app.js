@@ -298,7 +298,7 @@ function initStatCounters() { // Generic stat counter logic
     });
   }, { threshold: 0.5 });
 
-  numbers.forEach(el => observer.observe(el));
+  stats.forEach(el => observer.observe(el));
 }
 
 function countUp(el) {
@@ -708,7 +708,7 @@ function initMusicPlayer() {
   const audio = new Audio();
   // Use a royalty-free birthday tune URL as demo
   // In production, replace with actual audio file path
-  audio.src = 'music/birthday.mp3';
+  audio.src = '/music/birthday.mp3';
   audio.loop = true;
   audio.volume = 0.5;
 

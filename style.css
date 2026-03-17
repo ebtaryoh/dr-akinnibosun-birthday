@@ -86,7 +86,7 @@ body {
 
 .preloader-number {
   font-family: var(--font-serif);
-  font-size: clamp(100px, 20vw, 180px);
+  font-size: clamp(40px, 8vw, 80px);
   font-weight: 700;
   background: linear-gradient(135deg, var(--gold-light), var(--gold), var(--gold-deep));
   -webkit-background-clip: text;
