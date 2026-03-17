@@ -76,6 +76,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initLightbox();
   initBackToTop();
   initConfetti();
+  initAutoConfetti();
   initFamilyTributes();
 });
 
@@ -745,6 +746,17 @@ function initBackToTop() {
 // ================================================================
 // CONFETTI
 // ================================================================
+function initAutoConfetti() {
+  // Wait for preloader (2.4s) + a small buffer
+  setTimeout(() => {
+    console.log("Auto-confetti started");
+    setInterval(() => {
+      // Launch a small, subtle burst of confetti
+      launchConfetti(15);
+    }, 4000); // Every 4 seconds
+  }, 3000);
+}
+
 function initConfetti() {
   document.getElementById('throwConfetti')?.addEventListener('click', () => {
     launchConfetti(200);
