@@ -53,9 +53,9 @@ const GALLERY_ITEMS = [
 
 // Seed wishes
 const SEED_WISHES = [
-  { name: 'Adaeze Emmanuel', relation: 'Family', message: 'Mama, you are the glue that holds us all together. Your love is our greatest inheritance. We love you!', emoji: '❤️' },
-  { name: 'The Grandchildren', relation: 'Family', message: 'Grandma, every memory with you is our favourite memory. Thank you for being our safe place always. 🎂', emoji: '🎂' },
-  { name: 'Chioma Okafor', relation: 'Friend', message: 'Decades of being the most remarkable woman I know. Here\'s to many more golden moments!', emoji: '🥂' },
+  { name: 'Adaeze Emmanuel', relation: 'Family', message: 'Daddy, you are the glue that holds us all together. Your love is our greatest inheritance. We love you!', emoji: '❤️' },
+  { name: 'The Grandchildren', relation: 'Family', message: 'Grandpa, every memory with you is our favourite memory. Thank you for being our safe place always. 🎂', emoji: '🎂' },
+  { name: 'Chioma Okafor', relation: 'Friend', message: 'Decades of being the most remarkable man I know. Here\'s to many more golden moments!', emoji: '🥂' },
 ];
 
 // ================================================================
